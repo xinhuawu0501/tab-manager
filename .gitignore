@@ -1,0 +1,6 @@
+node_modules
+
+/extension/images/
+/extension/next/
+index.html
+.next

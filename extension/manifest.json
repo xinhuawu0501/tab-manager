@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Tab manager",
+  "version": "1.0.0",
+  "icons": {
+    "16": "images/next.svg",
+    "32": "images/next.svg",
+    "48": "images/next.svg",
+    "128": "images/next.svg"
+  },
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "Tab Manager"
+  }
+}
