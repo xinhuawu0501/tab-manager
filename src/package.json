@@ -38,6 +38,8 @@
       ],
       "extensions": [
         "js",
+        "jsx",
+        "tsx",
         "json"
       ]
     }
