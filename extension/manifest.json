@@ -11,5 +11,6 @@
   "action": {
     "default_popup": "index.html",
     "default_title": "Tab Manager"
-  }
+  },
+  "permissions": ["tabs", "tabGroups"]
 }
