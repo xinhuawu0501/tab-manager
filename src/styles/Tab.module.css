@@ -1,0 +1,35 @@
+.tab-list {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+  list-style: none;
+}
+
+.tab-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.tab-item img {
+  width: 20px;
+  height: 20px;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 100%;
+}
+
+.tab-item a {
+  flex: 1;
+}
+
+.tab-item button {
+  background: none;
+  border: none;
+  height: 1rem;
+  width: 1rem;
+}
+
+.tab-item > * {
+  margin: 0.5rem;
+}

@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npm-watch",
+    "dev:extension": "npm-watch",
+    "dev": "next dev",
     "build": "next build && mv out/_next out/next && sed -i '' -e 's/\\/_next/\\.\\/next/g' out/**.html && mv out/index.html ../extension && rsync -va --delete-after out/next/ ../extension/next/ && rm -rf out && rsync -va --delete-after public/images ../extension/",
     "start": "next start",
     "lint": "next lint"
@@ -46,6 +47,7 @@
         "ts",
         "jsx",
         "tsx",
+        "css",
         "json"
       ]
     }
