@@ -30,6 +30,8 @@
         "styles/**",
         "pages/**",
         "public/**",
+        "hooks/**",
+        "components/**",
         "next.config.js",
         "extension/manifest.json"
       ],
@@ -41,6 +43,7 @@
       ],
       "extensions": [
         "js",
+        "ts",
         "jsx",
         "tsx",
         "json"
