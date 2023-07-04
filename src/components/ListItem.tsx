@@ -2,6 +2,7 @@ import { Dispatch } from "react";
 import { TabAction, TabActionType, TabItem } from "../hooks/useTabs";
 import { CloseIcon } from "./icons/close-tab";
 import Image from "next/image";
+import classes from "../styles/Tab.module.css";
 
 export const ListItem = ({
   item,
@@ -11,13 +12,16 @@ export const ListItem = ({
   dispatch: Dispatch<TabAction>;
 }) => {
   const { title, url, favIconUrl, id } = item.info;
-  console.log(item, "item");
 
   return (
-    <li>
-      <img src={favIconUrl!} alt={`${title}_img`} />
+    <li className={classes["tab-item"]}>
+      {favIconUrl ? (
+        <img src={favIconUrl} alt={`${title}_img`} />
+      ) : (
+        <div className={classes["empty-img"]}></div>
+      )}
       <a href={url} target="_blank" rel="noopener noreferrer">
-        {title}
+        {title && title?.length > 30 ? title.slice(0, 30) + "..." : title}
       </a>
       <button
         onClick={() => dispatch({ type: TabActionType.CLOSE, payload: [item] })}

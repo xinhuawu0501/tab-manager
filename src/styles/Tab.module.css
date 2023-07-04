@@ -33,3 +33,10 @@
 .tab-item > * {
   margin: 0.5rem;
 }
+
+.tab-item .empty-img {
+  width: 20px;
+  height: 20px;
+  background-color: lightgray;
+  border-radius: 100%;
+}
