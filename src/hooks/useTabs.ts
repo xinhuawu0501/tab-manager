@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useReducer } from "react";
 
 export type Tab = Pick<
   chrome.tabs.Tab,
@@ -32,8 +32,16 @@ const handleGetAllTabs = async () => {
   if (!chrome?.tabs) return;
   try {
     const tabs = await chrome.tabs.query({});
-    if (tabs[0]) {
-      const tabItems = tabs.map((t) => new TabItem(t));
+    const [currentTab] = await chrome.tabs.query({
+      active: true,
+      lastFocusedWindow: true,
+    });
+    if (tabs[0] && currentTab) {
+      const sortedTab = [
+        currentTab,
+        ...tabs.filter((t) => t.id !== currentTab.id),
+      ];
+      const tabItems = sortedTab.map((t) => new TabItem(t));
       return tabItems;
     }
   } catch (e) {
@@ -56,12 +64,13 @@ const reducer = (state: TabItem[], action: TabAction) => {
       const filteredState = state.filter((t) => t.info.id !== tab.info.id);
       return filteredState;
     }
+    default:
+      return state;
   }
 };
 
 export const useTabs = () => {
   const [tabState, dispatch] = useReducer(reducer, []);
-  console.log("use tab", tabState);
   useEffect(() => {
     handleGetAllTabs().then((tabs) =>
       dispatch({ type: TabActionType.GET_ALL, payload: tabs })
