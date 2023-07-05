@@ -1,4 +1,5 @@
 import { useEffect, useReducer } from "react";
+import { TabListState } from "../lib/type/Tab";
 
 export type Tab = Pick<
   chrome.tabs.Tab,
@@ -8,6 +9,7 @@ export type Tab = Pick<
 export enum TabActionType {
   GET_ALL = "GET_ALL",
   CLOSE = "CLOSE",
+  BOOKMARK = "BOOKMARK",
 }
 
 export interface TabAction {
@@ -49,28 +51,36 @@ const handleGetAllTabs = async () => {
   }
 };
 
-const reducer = (state: TabItem[], action: TabAction) => {
+const reducer = (state: TabListState, action: TabAction) => {
   const { type, payload } = action;
   switch (type) {
     case TabActionType.GET_ALL: {
       if (!payload?.[0]) return state;
-      return payload;
+      return { ...state, ALL: payload };
     }
 
     case TabActionType.CLOSE: {
       if (!payload?.[0]) return state;
       const [tab] = payload;
       tab.handleClose();
-      const filteredState = state.filter((t) => t.info.id !== tab.info.id);
-      return filteredState;
+      const filteredState = state["ALL"].filter(
+        (t) => t.info.id !== tab.info.id
+      );
+      return { ...state, ALL: filteredState };
     }
+
     default:
       return state;
   }
 };
 
+const initState: TabListState = {
+  ALL: [],
+  BOOKMARKED: [],
+};
+
 export const useTabs = () => {
-  const [tabState, dispatch] = useReducer(reducer, []);
+  const [tabState, dispatch] = useReducer(reducer, initState);
   useEffect(() => {
     handleGetAllTabs().then((tabs) =>
       dispatch({ type: TabActionType.GET_ALL, payload: tabs })
