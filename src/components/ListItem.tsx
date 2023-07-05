@@ -28,6 +28,13 @@ export const ListItem = ({
       >
         <CloseIcon />
       </button>
+      <button
+        onClick={() =>
+          dispatch({ type: TabActionType.BOOKMARK, payload: [item] })
+        }
+      >
+        Bookmark
+      </button>
     </li>
   );
 };

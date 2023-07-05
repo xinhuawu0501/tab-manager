@@ -4,7 +4,7 @@ import { TabListState } from "../lib/type/Tab";
 export type Tab = Pick<
   chrome.tabs.Tab,
   "id" | "url" | "title" | "index" | "favIconUrl"
->;
+> & { bookmarked: boolean };
 
 export enum TabActionType {
   GET_ALL = "GET_ALL",
@@ -28,6 +28,10 @@ export class TabItem {
     if (!this.info?.id) return;
     chrome.tabs.remove(this.info.id);
   }
+
+  handleBookmark() {
+    chrome.storage.local.set({ bookmarkedTabs: [this.info] });
+  }
 }
 
 const handleGetAllTabs = async () => {
@@ -43,7 +47,11 @@ const handleGetAllTabs = async () => {
         currentTab,
         ...tabs.filter((t) => t.id !== currentTab.id),
       ];
-      const tabItems = sortedTab.map((t) => new TabItem(t));
+      const tabItems = sortedTab.map((t) => {
+        const tab = { ...t, bookmarked: false };
+        return new TabItem(tab);
+      });
+
       return tabItems;
     }
   } catch (e) {
@@ -69,6 +77,14 @@ const reducer = (state: TabListState, action: TabAction) => {
       return { ...state, ALL: filteredState };
     }
 
+    case TabActionType.BOOKMARK: {
+      if (!payload?.[0]) return state;
+      const [tab] = payload;
+      tab.handleBookmark();
+
+      return state;
+    }
+
     default:
       return state;
   }
@@ -82,6 +98,10 @@ const initState: TabListState = {
 export const useTabs = () => {
   const [tabState, dispatch] = useReducer(reducer, initState);
   useEffect(() => {
+    chrome.storage.onChanged.addListener((change, area) => {
+      console.log(change, area);
+    });
+
     handleGetAllTabs().then((tabs) =>
       dispatch({ type: TabActionType.GET_ALL, payload: tabs })
     );
