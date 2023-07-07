@@ -1,5 +1,5 @@
-import { useEffect, useReducer } from "react";
-import { TabListState } from "../lib/type/Tab";
+import { useEffect, useReducer, useState } from "react";
+import { ITabItem, TabListState } from "../lib/type/Tab";
 
 export type Tab = Pick<
   chrome.tabs.Tab,
@@ -12,100 +12,90 @@ export enum TabActionType {
   BOOKMARK = "BOOKMARK",
 }
 
-export interface TabAction {
-  type: TabActionType;
-  payload?: TabItem[];
+export enum STORAGE_KEY {
+  BOOKMARKED = "BOOKMARKED",
 }
-
-export class TabItem {
-  info: Tab;
-
-  constructor(info: Tab) {
-    this.info = info;
-  }
-
-  handleClose() {
-    if (!this.info?.id) return;
-    chrome.tabs.remove(this.info.id);
-  }
-
-  handleBookmark() {
-    chrome.storage.local.set({ bookmarkedTabs: [this.info] });
-  }
-}
-
-const handleGetAllTabs = async () => {
-  if (!chrome?.tabs) return;
-  try {
-    const tabs = await chrome.tabs.query({});
-    const [currentTab] = await chrome.tabs.query({
-      active: true,
-      lastFocusedWindow: true,
-    });
-    if (tabs[0] && currentTab) {
-      const sortedTab = [
-        currentTab,
-        ...tabs.filter((t) => t.id !== currentTab.id),
-      ];
-      const tabItems = sortedTab.map((t) => {
-        const tab = { ...t, bookmarked: false };
-        return new TabItem(tab);
-      });
-
-      return tabItems;
-    }
-  } catch (e) {
-    console.error(e);
-  }
-};
-
-const reducer = (state: TabListState, action: TabAction) => {
-  const { type, payload } = action;
-  switch (type) {
-    case TabActionType.GET_ALL: {
-      if (!payload?.[0]) return state;
-      return { ...state, ALL: payload };
-    }
-
-    case TabActionType.CLOSE: {
-      if (!payload?.[0]) return state;
-      const [tab] = payload;
-      tab.handleClose();
-      const filteredState = state["ALL"].filter(
-        (t) => t.info.id !== tab.info.id
-      );
-      return { ...state, ALL: filteredState };
-    }
-
-    case TabActionType.BOOKMARK: {
-      if (!payload?.[0]) return state;
-      const [tab] = payload;
-      tab.handleBookmark();
-
-      return state;
-    }
-
-    default:
-      return state;
-  }
-};
 
 const initState: TabListState = {
   ALL: [],
   BOOKMARKED: [],
 };
 
+/**
+ * Functionalities:
+ * - Get all tab from browser
+ * - Close tab
+ * - Store tab
+ * @returns
+ */
 export const useTabs = () => {
-  const [tabState, dispatch] = useReducer(reducer, initState);
+  const [allTab, setAllTab] = useState<TabItem[]>([]);
+  const bookmarkedTab = allTab.filter((t) => t.info.bookmarked);
+
+  const tabs: TabListState = {
+    ALL: allTab,
+    BOOKMARKED: bookmarkedTab,
+  };
+  class TabItem implements ITabItem {
+    info: Tab;
+
+    constructor(info: Tab) {
+      this.info = info;
+    }
+
+    handleClose() {
+      if (!this.info?.id) return;
+      chrome.tabs.remove(this.info.id);
+      setAllTab((prev) => prev.filter((t) => t.info.id !== this.info.id));
+    }
+
+    handleBookmark() {
+      const index = allTab.findIndex((t) => t.info.id === this.info.id);
+      this.info.bookmarked = !this.info.bookmarked;
+    }
+  }
+
+  const handleGetAllTabs = async () => {
+    if (!chrome?.tabs) return;
+    try {
+      const tabs = await chrome.tabs.query({});
+      const [currentTab] = await chrome.tabs.query({
+        active: true,
+        lastFocusedWindow: true,
+      });
+
+      const bookmarked: { [key: string]: Tab[] } =
+        await chrome.storage.local.get([STORAGE_KEY.BOOKMARKED]);
+      const { BOOKMARKED } = bookmarked;
+      if (!tabs[0] || !currentTab) return;
+      const sortedTab = [
+        currentTab,
+        ...tabs.filter((t) => t.id !== currentTab.id),
+      ];
+
+      const tabItems = sortedTab.map((t) => {
+        const isBookmarked = !!BOOKMARKED?.find((b) => b.id === t.id);
+        return new TabItem({ ...t, bookmarked: isBookmarked });
+      });
+
+      setAllTab(tabItems);
+      return tabItems;
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   useEffect(() => {
     chrome.storage.onChanged.addListener((change, area) => {
       console.log(change, area);
     });
 
-    handleGetAllTabs().then((tabs) =>
-      dispatch({ type: TabActionType.GET_ALL, payload: tabs })
-    );
+    handleGetAllTabs();
   }, []);
 
-  return { tabState, dispatch };
+  useEffect(() => {
+    chrome.storage.local.set({ [STORAGE_KEY.BOOKMARKED]: bookmarkedTab });
+  }, [bookmarkedTab]);
+
+  return { TabItem, tabs };
 };

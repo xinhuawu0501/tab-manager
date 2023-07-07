@@ -1,16 +1,23 @@
 import { useTabs } from "../hooks/useTabs";
 import { ListItem } from "./ListItem";
 import classes from "../styles/Tab.module.css";
+import { TabListState } from "../lib/type/Tab";
 
 export const List = () => {
-  const { tabState, dispatch } = useTabs();
-  console.log("in list", tabState);
+  const { tabs } = useTabs();
 
-  return (
-    <ul className={classes["tab-list"]}>
-      {tabState.ALL.map((l, i) => (
-        <ListItem key={i} item={l} dispatch={dispatch} />
-      ))}
-    </ul>
-  );
+  const renderTabs = (tabs: TabListState) => {
+    return Object.entries(tabs).map(([key, value]) => {
+      return (
+        <div key={key}>
+          <label>{`${key}(${value.length})`}</label>
+          {value.map((v) => (
+            <ListItem key={v.info.id} item={v} />
+          ))}
+        </div>
+      );
+    });
+  };
+
+  return <ul className={classes["tab-list"]}>{renderTabs(tabs)}</ul>;
 };

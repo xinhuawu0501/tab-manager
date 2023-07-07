@@ -1,4 +1,5 @@
 .tab-list {
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   padding: 0.5rem;
@@ -6,9 +7,12 @@
 }
 
 .tab-item {
-  width: 100%;
+  width: 20rem;
   display: flex;
-  align-items: center;
+}
+
+.tab-item > * {
+  margin: 0.5rem;
 }
 
 .tab-item img {
@@ -20,7 +24,7 @@
 }
 
 .tab-item a {
-  flex: 1;
+  width: 15rem;
 }
 
 .tab-item button {
@@ -28,10 +32,6 @@
   border: none;
   height: 1rem;
   width: 1rem;
-}
-
-.tab-item > * {
-  margin: 0.5rem;
 }
 
 .tab-item .empty-img {

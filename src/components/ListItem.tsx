@@ -1,16 +1,9 @@
-import { Dispatch } from "react";
-import { TabAction, TabActionType, TabItem } from "../hooks/useTabs";
 import { CloseIcon } from "./icons/close-tab";
 import Image from "next/image";
 import classes from "../styles/Tab.module.css";
+import { ITabItem } from "../lib/type/Tab";
 
-export const ListItem = ({
-  item,
-  dispatch,
-}: {
-  item: TabItem;
-  dispatch: Dispatch<TabAction>;
-}) => {
+export const ListItem = ({ item }: { item: ITabItem }) => {
   const { title, url, favIconUrl, id } = item.info;
 
   return (
@@ -21,20 +14,12 @@ export const ListItem = ({
         <div className={classes["empty-img"]}></div>
       )}
       <a href={url} target="_blank" rel="noopener noreferrer">
-        {title && title?.length > 30 ? title.slice(0, 30) + "..." : title}
+        {title && title?.length > 20 ? title.slice(0, 20) + "..." : title}
       </a>
-      <button
-        onClick={() => dispatch({ type: TabActionType.CLOSE, payload: [item] })}
-      >
+      <button>
         <CloseIcon />
       </button>
-      <button
-        onClick={() =>
-          dispatch({ type: TabActionType.BOOKMARK, payload: [item] })
-        }
-      >
-        Bookmark
-      </button>
+      <button>Bookmark</button>
     </li>
   );
 };
