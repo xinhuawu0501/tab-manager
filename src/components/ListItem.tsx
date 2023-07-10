@@ -1,5 +1,4 @@
 import { CloseIcon } from "./icons/close-tab";
-import Image from "next/image";
 import classes from "../styles/Tab.module.css";
 import { ITabItem } from "../lib/type/Tab";
 
@@ -16,10 +15,10 @@ export const ListItem = ({ item }: { item: ITabItem }) => {
       <a href={url} target="_blank" rel="noopener noreferrer">
         {title && title?.length > 20 ? title.slice(0, 20) + "..." : title}
       </a>
-      <button>
+      <button onClick={() => item.handleClose()}>
         <CloseIcon />
       </button>
-      <button>Bookmark</button>
+      <button onClick={() => item.handleBookmark()}>Bookmark</button>
     </li>
   );
 };
