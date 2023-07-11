@@ -54,13 +54,10 @@ export const useTabs = () => {
       setAllTab((prev) => {
         const i = prev.findIndex((t) => t.info.id === this.info.id);
         if (i === -1) return prev;
-        //@ts-expect-error
+        this.info.bookmarked = !this.info.bookmarked;
         const newState: TabItem[] = [
           ...prev.slice(0, i),
-          {
-            ...prev[i],
-            info: { ...prev[i].info, bookmarked: !prev[i].info.bookmarked },
-          },
+          this,
           ...prev.slice(i + 1),
         ];
         const newBookmarkState = newState.filter((t) => t.info.bookmarked);
