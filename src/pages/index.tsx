@@ -1,3 +1,9 @@
+import { List } from "../components/List";
+
 export default function Home() {
-  return <div>Home page jkdlsahii</div>;
+  return (
+    <div>
+      <List />
+    </div>
+  );
 }

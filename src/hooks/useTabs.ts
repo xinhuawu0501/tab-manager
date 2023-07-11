@@ -15,12 +15,6 @@ export enum TabActionType {
 export enum STORAGE_KEY {
   BOOKMARKED = "BOOKMARKED",
 }
-
-const initState: TabListState = {
-  ALL: [],
-  BOOKMARKED: [],
-};
-
 /**
  * Functionalities:
  * - Get all tab from browser
@@ -36,6 +30,12 @@ export const useTabs = () => {
     ALL: allTab,
     BOOKMARKED: bookmarkedTab,
   };
+
+  const handleBookmark = (data: TabItem[]) => {
+    if (!data) return;
+    chrome.storage.local.set({ [STORAGE_KEY.BOOKMARKED]: data });
+  };
+
   class TabItem implements ITabItem {
     info: Tab;
 
@@ -44,14 +44,29 @@ export const useTabs = () => {
     }
 
     handleClose() {
-      if (!this.info?.id) return;
+      if (!this.info.id) return;
       chrome.tabs.remove(this.info.id);
       setAllTab((prev) => prev.filter((t) => t.info.id !== this.info.id));
     }
 
     handleBookmark() {
-      const index = allTab.findIndex((t) => t.info.id === this.info.id);
-      this.info.bookmarked = !this.info.bookmarked;
+      if (!this.info.id) return;
+      setAllTab((prev) => {
+        const i = prev.findIndex((t) => t.info.id === this.info.id);
+        if (i === -1) return prev;
+        //@ts-expect-error
+        const newState: TabItem[] = [
+          ...prev.slice(0, i),
+          {
+            ...prev[i],
+            info: { ...prev[i].info, bookmarked: !prev[i].info.bookmarked },
+          },
+          ...prev.slice(i + 1),
+        ];
+        const newBookmarkState = newState.filter((t) => t.info.bookmarked);
+        handleBookmark(newBookmarkState);
+        return newState;
+      });
     }
   }
 
@@ -64,9 +79,11 @@ export const useTabs = () => {
         lastFocusedWindow: true,
       });
 
-      const bookmarked: { [key: string]: Tab[] } =
+      const bookmarked: { [key: string]: TabItem[] } =
         await chrome.storage.local.get([STORAGE_KEY.BOOKMARKED]);
+
       const { BOOKMARKED } = bookmarked;
+
       if (!tabs[0] || !currentTab) return;
       const sortedTab = [
         currentTab,
@@ -74,12 +91,11 @@ export const useTabs = () => {
       ];
 
       const tabItems = sortedTab.map((t) => {
-        const isBookmarked = !!BOOKMARKED?.find((b) => b.id === t.id);
+        const isBookmarked = !!BOOKMARKED.find((b) => b.info.id === t.id);
         return new TabItem({ ...t, bookmarked: isBookmarked });
       });
 
       setAllTab(tabItems);
-      return tabItems;
     } catch (e) {
       console.error(e);
     }
@@ -92,10 +108,6 @@ export const useTabs = () => {
 
     handleGetAllTabs();
   }, []);
-
-  useEffect(() => {
-    chrome.storage.local.set({ [STORAGE_KEY.BOOKMARKED]: bookmarkedTab });
-  }, [bookmarkedTab]);
 
   return { TabItem, tabs };
 };
