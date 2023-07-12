@@ -1,9 +1,15 @@
-import { CloseIcon } from "./icons/close-tab";
+import { BookmarkedIcon, CloseIcon, UnBookmarkedIcon } from "./icons/close-tab";
 import classes from "../styles/Tab.module.css";
-import { ITabItem } from "../lib/type/Tab";
+import { Catogories, ITabItem } from "../lib/type/Tab";
 
-export const ListItem = ({ item }: { item: ITabItem }) => {
-  const { title, url, favIconUrl, id } = item.info;
+export const ListItem = ({
+  item,
+  category,
+}: {
+  item: ITabItem;
+  category: Catogories;
+}) => {
+  const { title, url, favIconUrl } = item.info;
 
   return (
     <li className={classes["tab-item"]}>
@@ -18,7 +24,9 @@ export const ListItem = ({ item }: { item: ITabItem }) => {
       <button onClick={() => item.handleClose()}>
         <CloseIcon />
       </button>
-      <button onClick={() => item.handleBookmark()}>Bookmark</button>
+      <button onClick={() => item.handleBookmark()}>
+        {category === "BOOKMARKED" ? <BookmarkedIcon /> : <UnBookmarkedIcon />}
+      </button>
     </li>
   );
 };

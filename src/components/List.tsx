@@ -1,7 +1,7 @@
 import { useTabs } from "../hooks/useTabs";
 import { ListItem } from "./ListItem";
 import classes from "../styles/Tab.module.css";
-import { TabListState } from "../lib/type/Tab";
+import { Catogories, TabListState } from "../lib/type/Tab";
 
 export const List = () => {
   const { tabs } = useTabs();
@@ -12,7 +12,7 @@ export const List = () => {
         <div key={key}>
           <label>{`${key}(${value.length})`}</label>
           {value.map((v) => (
-            <ListItem key={v.info.id} item={v} />
+            <ListItem key={v.info.id} item={v} category={key as Catogories} />
           ))}
         </div>
       );
