@@ -3,14 +3,18 @@
   "name": "Tab manager",
   "version": "1.0.0",
   "icons": {
-    "16": "images/next.svg",
-    "32": "images/next.svg",
-    "48": "images/next.svg",
-    "128": "images/next.svg"
+    "16": "./images/icons8-tab-16.png",
+    "32": "./images/icons8-tab-32.png",
+    "48": "./images/icons8-tab-48.png"
   },
   "action": {
     "default_popup": "index.html",
-    "default_title": "Tab Manager"
+    "default_title": "Tab Manager",
+    "default_icon": {
+      "16": "./images/icons8-tab-16.png",
+      "32": "./images/icons8-tab-32.png",
+      "48": "./images/icons8-tab-48.png"
+    }
   },
   "permissions": ["tabs", "activeTab", "tabGroups", "storage"]
 }
