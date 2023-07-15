@@ -54,13 +54,14 @@ export const useTabs = () => {
       const { id } = this.info;
 
       this.isBookmarked = !this.isBookmarked;
-      console.log(this.info.id);
 
       setBookmarkedTab((prev) => {
         let newState = [];
         const isBookmarked = !!prev.find((t) => t.info.id === id);
         if (isBookmarked) newState = prev.filter((t) => t.info.id !== id);
         else newState = prev.concat(this);
+
+        console.log("newState", newState);
 
         handleStoreInStorage(newState);
         return newState;
@@ -84,7 +85,9 @@ export const useTabs = () => {
       if (!data || !data.BOOKMARKED) return [];
       const { BOOKMARKED } = data;
 
-      setBookmarkedTab(BOOKMARKED);
+      setBookmarkedTab(
+        BOOKMARKED.map((t) => new TabItem(t.info, t.isBookmarked))
+      );
       return BOOKMARKED;
     } catch (error) {
       console.error(error);
