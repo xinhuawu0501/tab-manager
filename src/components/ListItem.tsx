@@ -16,16 +16,21 @@ export const ListItem = ({
       {favIconUrl ? (
         <img src={favIconUrl} alt={`${title}_img`} />
       ) : (
-        <div className={classes["empty-img"]}></div>
+        <div className={classes["empty-img"]} />
       )}
+
       <a href={url} target="_blank" rel="noopener noreferrer">
         {title && title?.length > 20 ? title.slice(0, 20) + "..." : title}
       </a>
-      <button onClick={() => item.handleClose()}>
-        <CloseIcon />
-      </button>
+
+      {category === "ALL" && (
+        <button onClick={() => item.handleClose()}>
+          <CloseIcon />
+        </button>
+      )}
+
       <button onClick={() => item.handleBookmark()}>
-        {category === "BOOKMARKED" ? <BookmarkedIcon /> : <UnBookmarkedIcon />}
+        {item.isBookmarked ? <BookmarkedIcon /> : <UnBookmarkedIcon />}
       </button>
     </li>
   );

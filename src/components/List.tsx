@@ -5,15 +5,17 @@ import { Catogories, TabListState } from "../lib/type/Tab";
 
 export const List = () => {
   const { tabs } = useTabs();
+  console.log(tabs);
 
   const renderTabs = (tabs: TabListState) => {
     return Object.entries(tabs).map(([key, value]) => {
       return (
         <div key={key}>
-          <label>{`${key}(${value.length})`}</label>
-          {value.map((v) => (
-            <ListItem key={v.info.id} item={v} category={key as Catogories} />
-          ))}
+          <label>{`${key}${value && `(${value.length})`}`}</label>
+          {value &&
+            value.map((v) => (
+              <ListItem key={v.info.id} item={v} category={key as Catogories} />
+            ))}
         </div>
       );
     });
