@@ -29,7 +29,7 @@ export const ListItem = ({
         </button>
       )}
 
-      <button onClick={() => item.handleBookmark()}>
+      <button onClick={() => item.handleToggleBookmark()}>
         {item.isBookmarked ? <BookmarkedIcon /> : <UnBookmarkedIcon />}
       </button>
     </li>

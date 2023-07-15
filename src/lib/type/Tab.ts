@@ -4,7 +4,7 @@ export interface ITabItem {
   info: Tab;
   isBookmarked: boolean;
   handleClose: () => void;
-  handleBookmark: () => void;
+  handleToggleBookmark: () => void;
 }
 
 export type Catogories = "ALL" | "BOOKMARKED";

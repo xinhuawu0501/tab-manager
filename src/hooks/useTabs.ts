@@ -6,15 +6,10 @@ export type Tab = Pick<
   "id" | "url" | "title" | "index" | "favIconUrl"
 >;
 
-export enum TabActionType {
-  GET_ALL = "GET_ALL",
-  CLOSE = "CLOSE",
-  BOOKMARK = "BOOKMARK",
-}
-
 export enum STORAGE_KEY {
   BOOKMARKED = "BOOKMARKED",
 }
+
 /**
  * Functionalities:
  * - Get all tab from browser
@@ -46,44 +41,48 @@ export const useTabs = () => {
 
     handleClose() {
       if (!this.info.id) return;
-      chrome.tabs.remove(this.info.id);
-      setAllTab((prev) => prev.filter((t) => t.info.id !== this.info.id));
-      setBookmarkedTab((prev) =>
-        prev.filter((t) => t.info.id !== this.info.id)
-      );
+      const { id } = this.info;
+
+      //close tab in window
+      chrome.tabs.remove(id);
+      setAllTab((prev) => prev.filter((t) => t.info.id !== id));
     }
 
-    handleBookmark() {
+    handleToggleBookmark() {
+      console.log(this.info.id);
+      if (!this.info.id) return;
+      const { id } = this.info;
+
       this.isBookmarked = !this.isBookmarked;
+      console.log(this.info.id);
 
       setBookmarkedTab((prev) => {
         let newState = [];
-        //if the tab is bookmarked -> remove from bookmarked state
-        if (!!prev.find((t) => t.info.id === this.info.id)) {
-          newState = prev.filter((t) => t.info.id !== this.info.id);
-        } else {
-          newState = prev.concat(this);
-        }
+        const isBookmarked = !!prev.find((t) => t.info.id === id);
+        if (isBookmarked) newState = prev.filter((t) => t.info.id !== id);
+        else newState = prev.concat(this);
+
         handleStoreInStorage(newState);
         return newState;
       });
 
+      //to update bookmark icon in `allTab` list
       setAllTab((prev) => {
-        const i = prev.findIndex((t) => t.info.id === this.info.id);
-        if (!i) return prev;
+        const i = prev.findIndex((t) => t.info.id === id);
+        if (i == -1) return prev;
         return [...prev.slice(0, i), this, ...prev.slice(i + 1)];
       });
     }
   }
 
   const handleGetBookmarkedTab = async () => {
-    if (!chrome?.tabs) return [];
     try {
-      const bookmarked: { [key: string]: TabItem[] } =
-        await chrome.storage.local.get([STORAGE_KEY.BOOKMARKED]);
+      const data: { [key: string]: TabItem[] } = await chrome.storage.local.get(
+        [STORAGE_KEY.BOOKMARKED]
+      );
 
-      if (!bookmarked || !bookmarked.BOOKMARKED) return [];
-      const { BOOKMARKED } = bookmarked;
+      if (!data || !data.BOOKMARKED) return [];
+      const { BOOKMARKED } = data;
 
       setBookmarkedTab(BOOKMARKED);
       return BOOKMARKED;
@@ -92,8 +91,7 @@ export const useTabs = () => {
     }
   };
 
-  const handleGetAllTabs = async (BOOKMARKED: TabItem[]) => {
-    if (!chrome?.tabs) return;
+  const handleGetAllTabs = async (data: TabItem[]) => {
     try {
       const tabs = await chrome.tabs.query({});
       const [currentTab] = await chrome.tabs.query({
@@ -108,8 +106,7 @@ export const useTabs = () => {
       ];
 
       const tabItems = sortedTab.map((t) => {
-        const isBookmarked =
-          BOOKMARKED && !!BOOKMARKED.find((tab) => t.id === tab.info.id);
+        const isBookmarked = data && !!data.find((tab) => t.id === tab.info.id);
         return new TabItem(t, isBookmarked);
       });
 
