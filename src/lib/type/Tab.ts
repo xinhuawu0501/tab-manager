@@ -3,6 +3,7 @@ import { Tab } from "../../hooks/useTabs";
 export interface ITabItem {
   info: Tab;
   isBookmarked: boolean;
+  handleNavigateTo: () => void;
   handleClose: () => void;
   handleToggleBookmark: () => void;
 }

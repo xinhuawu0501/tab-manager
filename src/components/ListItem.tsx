@@ -12,16 +12,14 @@ export const ListItem = ({
   const { title, url, favIconUrl } = item.info;
 
   return (
-    <li className={classes["tab-item"]}>
+    <li className={classes["tab-item"]} onClick={() => item.handleNavigateTo()}>
       {favIconUrl ? (
         <img src={favIconUrl} alt={`${title}_img`} />
       ) : (
         <div className={classes["empty-img"]} />
       )}
 
-      <a href={url} target="_blank" rel="noopener noreferrer">
-        {title && title?.length > 20 ? title.slice(0, 20) + "..." : title}
-      </a>
+      <div className={classes["title"]}>{title}</div>
 
       {category === "ALL" && (
         <button onClick={() => item.handleClose()}>

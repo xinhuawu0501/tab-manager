@@ -9,6 +9,7 @@
 .tab-item {
   width: 20rem;
   display: flex;
+  cursor: pointer;
 }
 
 .tab-item > * {
@@ -23,8 +24,9 @@
   border-radius: 100%;
 }
 
-.tab-item a {
+.tab-item .title {
   width: 15rem;
+  text-overflow: ellipsis;
 }
 
 .tab-item button {

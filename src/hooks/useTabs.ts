@@ -39,6 +39,13 @@ export const useTabs = () => {
       this.isBookmarked = isBookmarked;
     }
 
+    handleNavigateTo() {
+      if (!this.info.id) return;
+      const { id } = this.info;
+
+      chrome.tabs.update(id, { active: true });
+    }
+
     handleClose() {
       if (!this.info.id) return;
       const { id } = this.info;
