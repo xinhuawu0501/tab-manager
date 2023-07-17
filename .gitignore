@@ -4,3 +4,5 @@ node_modules
 /extension/next/
 index.html
 .next
+
+/.vscode/
