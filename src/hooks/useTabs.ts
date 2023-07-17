@@ -3,7 +3,7 @@ import { ITabItem, TabListState } from "../lib/type/Tab";
 
 export type Tab = Pick<
   chrome.tabs.Tab,
-  "id" | "url" | "title" | "index" | "favIconUrl"
+  "id" | "url" | "title" | "index" | "favIconUrl" | "windowId"
 >;
 
 export enum STORAGE_KEY {
@@ -41,9 +41,10 @@ export const useTabs = () => {
 
     handleNavigateTo() {
       if (!this.info.id) return;
-      const { id } = this.info;
+      const { id, windowId } = this.info;
 
       chrome.tabs.update(id, { active: true });
+      chrome.windows.update(windowId, { focused: true });
     }
 
     handleClose() {
