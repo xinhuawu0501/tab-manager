@@ -39,12 +39,18 @@ export const useTabs = () => {
       this.isBookmarked = isBookmarked;
     }
 
-    handleNavigateTo() {
+    async handleNavigateTo() {
       if (!this.info.id) return;
-      const { id, windowId } = this.info;
+      const { id, windowId, url } = this.info;
 
-      chrome.tabs.update(id, { active: true });
       chrome.windows.update(windowId, { focused: true });
+      try {
+        const targetTab = await chrome.tabs.update(id, { active: true });
+        return Promise.resolve(targetTab);
+      } catch (error) {
+        console.error(error);
+        return Promise.resolve(undefined);
+      }
     }
 
     handleClose() {
@@ -127,6 +133,14 @@ export const useTabs = () => {
     }
   };
 
+  const handleOpenNewTab = (url: string) => {
+    chrome.tabs.create({
+      active: true,
+      url: url,
+      openerTabId: allTab[0].info.id,
+    });
+  };
+
   useEffect(() => {
     // chrome.storage.local.remove([STORAGE_KEY.BOOKMARKED]);
     chrome.storage.onChanged.addListener((change, area) => {
@@ -143,5 +157,5 @@ export const useTabs = () => {
       .catch((err) => console.error(err));
   }, []);
 
-  return { TabItem, tabs };
+  return { TabItem, tabs, handleOpenNewTab };
 };
