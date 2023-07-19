@@ -25,7 +25,7 @@ export const ListItem = ({
         className={classes["title"]}
         onClick={async () => {
           const targetTab = await item.handleNavigateTo();
-          if (!targetTab) handleOpenNewTab(item.info.url);
+          if (!targetTab) handleOpenNewTab(url);
         }}
       >
         {title}
