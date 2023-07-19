@@ -6,6 +6,20 @@
   list-style: none;
 }
 
+.tab-list label {
+  padding: 2rem 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 3rem;
+}
+
+.tab-group {
+  background-color: #f3f6f9;
+  border-radius: 1rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+}
+
 .tab-item {
   width: 20rem;
   display: flex;

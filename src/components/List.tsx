@@ -1,7 +1,7 @@
 import { useTabs } from "../hooks/useTabs";
 import { ListItem } from "./ListItem";
 import classes from "../styles/Tab.module.css";
-import { Catogories, ITabItem, TabListState } from "../lib/type/Tab";
+import { ITabItem, TabListState } from "../lib/type/Tab";
 import { useMemo } from "react";
 
 export const List = () => {
@@ -22,14 +22,12 @@ export const List = () => {
 
   const groupedTab = useMemo(() => {
     return handleGroupTabsByWindow(tabs.ALL);
-  }, [tabs]);
+  }, [tabs.ALL.length]);
 
   const handleRenderAllTab = () => {
-    const colors = ["	#B0C4DE", "#E6E6FA", "#F0F8FF", "#FDF5E6"];
     return Object.entries(groupedTab).map(([key, value], i) => {
       return (
-        <div key={key} style={{ backgroundColor: colors[i] ?? colors[0] }}>
-          {key}
+        <div key={key} className={classes["tab-group"]}>
           {value.map((v) => (
             <ListItem
               key={v.info.id}
@@ -50,15 +48,18 @@ export const List = () => {
         <div key={key}>
           <label>{`${key}${`(${value.length})`}`}</label>
           <div>
-            {key === "BOOKMARKED" &&
-              value.map((v) => (
-                <ListItem
-                  key={v.info.id}
-                  item={v}
-                  category="BOOKMARKED"
-                  handleOpenNewTab={handleOpenNewTab}
-                />
-              ))}
+            {key === "BOOKMARKED" && (
+              <div className={classes["tab-group"]}>
+                {value.map((v) => (
+                  <ListItem
+                    key={v.info.id}
+                    item={v}
+                    category="BOOKMARKED"
+                    handleOpenNewTab={handleOpenNewTab}
+                  />
+                ))}
+              </div>
+            )}
             {key === "ALL" && handleRenderAllTab()}
           </div>
         </div>
