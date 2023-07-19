@@ -21,9 +21,21 @@
 }
 
 .tab-item {
+  border-radius: 1rem;
+  padding: 0.5rem;
   width: 20rem;
   display: flex;
   cursor: pointer;
+  background-color: #f3f6f9;
+}
+
+.tab-item:hover {
+  filter: brightness(0.9);
+}
+
+.tab-item:active {
+  filter: brightness(0.7);
+  transform: translateY(2px);
 }
 
 .tab-item > * {
