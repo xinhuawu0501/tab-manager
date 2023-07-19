@@ -1,10 +1,5 @@
 import { useEffect, useState } from "react";
-import { ITabItem, TabListState } from "../lib/type/Tab";
-
-export type Tab = Pick<
-  chrome.tabs.Tab,
-  "id" | "url" | "title" | "index" | "favIconUrl" | "windowId"
->;
+import { ITabItem, Tab, TabListState } from "../lib/type/Tab";
 
 export enum STORAGE_KEY {
   BOOKMARKED = "BOOKMARKED",
@@ -17,20 +12,20 @@ export enum STORAGE_KEY {
  * - Store tab
  */
 export const useTabs = () => {
-  const [allTab, setAllTab] = useState<TabItem[]>([]);
-  const [bookmarkedTab, setBookmarkedTab] = useState<TabItem[]>([]);
+  const [allTab, setAllTab] = useState<ITabItem[]>([]);
+  const [bookmarkedTab, setBookmarkedTab] = useState<ITabItem[]>([]);
 
   const tabs: TabListState = {
     ALL: allTab,
     BOOKMARKED: bookmarkedTab,
   };
 
-  const handleStoreInStorage = (data: TabItem[]) => {
+  const handleStoreInStorage = (data: ITabItem[]) => {
     if (!data) return;
     chrome.storage.local.set({ [STORAGE_KEY.BOOKMARKED]: data });
   };
 
-  class TabItem implements ITabItem {
+  class TabItem {
     info: Tab;
     isBookmarked: boolean;
 
@@ -92,9 +87,8 @@ export const useTabs = () => {
 
   const handleGetBookmarkedTab = async () => {
     try {
-      const data: { [key: string]: TabItem[] } = await chrome.storage.local.get(
-        [STORAGE_KEY.BOOKMARKED]
-      );
+      const data: { [key: string]: ITabItem[] } =
+        await chrome.storage.local.get([STORAGE_KEY.BOOKMARKED]);
 
       if (!data || !data.BOOKMARKED) return [];
       const { BOOKMARKED } = data;
@@ -108,7 +102,7 @@ export const useTabs = () => {
     }
   };
 
-  const handleGetAllTabs = async (data: TabItem[]) => {
+  const handleGetAllTabs = async (data: ITabItem[]) => {
     try {
       const tabs = await chrome.tabs.query({});
       const [currentTab] = await chrome.tabs.query({
@@ -157,5 +151,5 @@ export const useTabs = () => {
       .catch((err) => console.error(err));
   }, []);
 
-  return { TabItem, tabs, handleOpenNewTab };
+  return { tabs, handleOpenNewTab };
 };

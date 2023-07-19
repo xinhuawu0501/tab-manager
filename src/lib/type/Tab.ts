@@ -1,4 +1,7 @@
-import { Tab } from "../../hooks/useTabs";
+export type Tab = Pick<
+  chrome.tabs.Tab,
+  "id" | "url" | "title" | "index" | "favIconUrl" | "windowId"
+>;
 
 export interface ITabItem {
   info: Tab;
