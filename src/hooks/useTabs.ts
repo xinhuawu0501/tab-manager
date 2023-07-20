@@ -10,6 +10,7 @@ import { ITabItem, STORAGE_KEY, Tab, TabListState } from "../lib/type/Tab";
 export const useTabs = () => {
   const [allTab, setAllTab] = useState<ITabItem[]>([]);
   const [bookmarkedTab, setBookmarkedTab] = useState<ITabItem[]>([]);
+  const [currentWindow, setCurrentWindow] = useState<chrome.windows.Window>();
 
   const tabs: TabListState = {
     ALL: allTab,
@@ -98,7 +99,6 @@ export const useTabs = () => {
     }
   };
 
-  //TODO: append tabs in current window on the top of the list
   const handleGetAllTabs = async (data: ITabItem[]) => {
     try {
       const tabs = await chrome.tabs.query({});
@@ -128,11 +128,22 @@ export const useTabs = () => {
     await chrome.tabs.create({
       active: true,
       url: url,
-      //TODO: open new tab in current window
-      openerTabId: allTab[0].info.id,
-      windowId: allTab[0].info.windowId,
+      openerTabId: currentWindow?.tabs?.[0].id ?? allTab[0].info.id,
+      windowId: currentWindow?.id ?? allTab[0].info.windowId,
     });
   };
+
+  useEffect(() => {
+    const handleGetCurrentWindow = async () => {
+      try {
+        const window = await chrome.windows.getCurrent();
+        if (window) setCurrentWindow(window);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    handleGetCurrentWindow();
+  }, []);
 
   useEffect(() => {
     // chrome.storage.local.remove([STORAGE_KEY.BOOKMARKED]);
@@ -154,5 +165,5 @@ export const useTabs = () => {
       .catch((err) => console.error(err));
   }, []);
 
-  return { tabs, handleOpenNewTab };
+  return { tabs, handleOpenNewTab, currentWindow };
 };

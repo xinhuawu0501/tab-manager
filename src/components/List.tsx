@@ -5,7 +5,7 @@ import { Catogories, ITabItem } from "../lib/type/Tab";
 import { useMemo } from "react";
 
 export const List = () => {
-  const { tabs, handleOpenNewTab } = useTabs();
+  const { tabs, handleOpenNewTab, currentWindow } = useTabs();
   const { ALL, BOOKMARKED } = tabs;
 
   //TODO: place the current window on the first of the array
@@ -21,9 +21,23 @@ export const List = () => {
     return groups;
   };
 
-  const groupedTab = useMemo(() => {
-    return handleGroupTabsByWindow(ALL);
-  }, [ALL.length]);
+  const allTabArrSortedByWindow = useMemo(() => {
+    const groupedByWindow = handleGroupTabsByWindow(ALL);
+    const arr = Object.entries(groupedByWindow);
+
+    if (!currentWindow || !currentWindow.id) return arr;
+    const indexOfCurrentWindowGroup = arr.findIndex(
+      //@ts-expect-error
+      ([k, v]) => k == currentWindow.id
+    );
+    if (indexOfCurrentWindowGroup === -1) return arr;
+
+    const temp = arr[0];
+    arr[0] = arr[indexOfCurrentWindowGroup];
+    arr[indexOfCurrentWindowGroup] = temp;
+
+    return arr;
+  }, [ALL.length, currentWindow]);
 
   const renderTabs = (tabs: ITabItem[], category: Catogories) => {
     return (
@@ -44,7 +58,7 @@ export const List = () => {
     <div className={classes["tab-list"]}>
       <div id="all-tabs">
         <label>{`ALL (${ALL.length})`}</label>
-        {Object.entries(groupedTab).map(([key, value]) =>
+        {allTabArrSortedByWindow.map(([key, value]) =>
           renderTabs(value, "ALL")
         )}
       </div>
