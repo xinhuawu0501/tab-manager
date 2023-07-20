@@ -23,9 +23,18 @@ export const ListItem = ({
 
       <div
         className={classes["title"]}
-        onClick={async () => {
-          const targetTab = await item.handleNavigateTo();
-          if (!targetTab) handleOpenNewTab(url);
+        onClick={() => {
+          item
+            .handleNavigateTo()
+            .then((res) => {
+              if (!res || res.find((t) => t.status === "rejected"))
+                return Promise.reject();
+            })
+            .then(
+              (res) => {},
+              (rej) => handleOpenNewTab(url)
+            )
+            .catch((err) => console.error(err));
         }}
       >
         {title}

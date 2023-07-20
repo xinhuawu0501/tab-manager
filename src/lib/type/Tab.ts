@@ -6,7 +6,13 @@ export type Tab = Pick<
 export interface ITabItem {
   info: Tab;
   isBookmarked: boolean;
-  handleNavigateTo: () => Promise<unknown>;
+  handleNavigateTo: () => Promise<
+    | [
+        PromiseSettledResult<chrome.windows.Window>,
+        PromiseSettledResult<chrome.tabs.Tab>
+      ]
+    | undefined
+  >;
   handleClose: () => void;
   handleToggleBookmark: () => void;
 }

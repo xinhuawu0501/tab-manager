@@ -130,11 +130,13 @@ export const useTabs = () => {
     }
   };
 
-  const handleOpenNewTab = (url: string) => {
-    chrome.tabs.create({
+  const handleOpenNewTab = async (url: string) => {
+    await chrome.tabs.create({
       active: true,
       url: url,
+      //TODO: open new tab in current window
       openerTabId: allTab[0].info.id,
+      windowId: allTab[0].info.windowId,
     });
   };
 
@@ -142,6 +144,10 @@ export const useTabs = () => {
     // chrome.storage.local.remove([STORAGE_KEY.BOOKMARKED]);
     chrome.storage.onChanged.addListener((change, area) => {
       console.log(change, area);
+    });
+
+    chrome.tabs.onCreated.addListener((tab) => {
+      console.log("created", tab);
     });
   }, []);
 
