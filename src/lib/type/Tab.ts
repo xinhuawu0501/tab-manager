@@ -6,7 +6,7 @@ export type Tab = Pick<
 export interface ITabItem {
   info: Tab;
   isBookmarked: boolean;
-  handleNavigateTo: () => Promise<Tab | undefined>;
+  handleNavigateTo: () => Promise<unknown>;
   handleClose: () => void;
   handleToggleBookmark: () => void;
 }

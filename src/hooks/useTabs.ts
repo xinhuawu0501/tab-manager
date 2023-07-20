@@ -38,13 +38,16 @@ export const useTabs = () => {
       if (!this.info.id) return;
       const { id, windowId, url } = this.info;
 
-      chrome.windows.update(windowId, { focused: true });
       try {
-        const targetTab = await chrome.tabs.update(id, { active: true });
-        return Promise.resolve(targetTab);
+        const updateWindowPromise = chrome.windows.update(windowId, {
+          focused: true,
+        });
+        const updateTabPromise = chrome.tabs.update(id, { active: true });
+        const res = Promise.allSettled([updateWindowPromise, updateTabPromise]);
+        return res;
       } catch (error) {
         console.error(error);
-        return Promise.resolve(undefined);
+        return;
       }
     }
 
