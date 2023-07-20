@@ -1,9 +1,5 @@
 import { useEffect, useState } from "react";
-import { ITabItem, Tab, TabListState } from "../lib/type/Tab";
-
-export enum STORAGE_KEY {
-  BOOKMARKED = "BOOKMARKED",
-}
+import { ITabItem, STORAGE_KEY, Tab, TabListState } from "../lib/type/Tab";
 
 /**
  * Functionalities:
@@ -36,7 +32,7 @@ export const useTabs = () => {
 
     async handleNavigateTo() {
       if (!this.info.id) return;
-      const { id, windowId, url } = this.info;
+      const { id, windowId } = this.info;
 
       try {
         const updateWindowPromise = chrome.windows.update(windowId, {
@@ -61,7 +57,6 @@ export const useTabs = () => {
     }
 
     handleToggleBookmark() {
-      console.log(this.info.id);
       if (!this.info.id) return;
       const { id } = this.info;
 
@@ -72,8 +67,6 @@ export const useTabs = () => {
         const isBookmarked = !!prev.find((t) => t.info.id === id);
         if (isBookmarked) newState = prev.filter((t) => t.info.id !== id);
         else newState = prev.concat(this);
-
-        console.log("newState", newState);
 
         handleStoreInStorage(newState);
         return newState;
@@ -105,6 +98,7 @@ export const useTabs = () => {
     }
   };
 
+  //TODO: append tabs in current window on the top of the list
   const handleGetAllTabs = async (data: ITabItem[]) => {
     try {
       const tabs = await chrome.tabs.query({});

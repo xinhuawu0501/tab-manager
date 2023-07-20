@@ -1,3 +1,7 @@
+export enum STORAGE_KEY {
+  BOOKMARKED = "BOOKMARKED",
+}
+
 export type Tab = Pick<
   chrome.tabs.Tab,
   "id" | "url" | "title" | "index" | "favIconUrl" | "windowId"
