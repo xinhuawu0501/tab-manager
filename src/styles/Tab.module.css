@@ -17,12 +17,12 @@
   background-color: #f3f6f9;
   border-radius: 1rem;
   margin-bottom: 1rem;
-  padding: 1rem;
+  padding: 1rem 0.5rem;
 }
 
 .tab-item {
   border-radius: 1rem;
-  padding: 5px;
+  padding: 3px 8px;
   width: 20rem;
   display: flex;
   cursor: pointer;
