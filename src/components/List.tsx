@@ -1,13 +1,14 @@
 import { useTabs } from "../hooks/useTabs";
 import { ListItem } from "./ListItem";
 import classes from "../styles/Tab.module.css";
-import { ITabItem, TabListState } from "../lib/type/Tab";
+import { Catogories, ITabItem } from "../lib/type/Tab";
 import { useMemo } from "react";
 
 export const List = () => {
   const { tabs, handleOpenNewTab } = useTabs();
-  console.log(tabs);
+  const { ALL, BOOKMARKED } = tabs;
 
+  //TODO: place the current window on the first of the array
   const handleGroupTabsByWindow = (tabs: ITabItem[]) => {
     const groups: { [id: number]: ITabItem[] } = {};
 
@@ -21,51 +22,36 @@ export const List = () => {
   };
 
   const groupedTab = useMemo(() => {
-    return handleGroupTabsByWindow(tabs.ALL);
-  }, [tabs.ALL.length]);
+    return handleGroupTabsByWindow(ALL);
+  }, [ALL.length]);
 
-  const handleRenderAllTab = () => {
-    return Object.entries(groupedTab).map(([key, value], i) => {
-      return (
-        <div key={key} className={classes["tab-group"]}>
-          {value.map((v) => (
-            <ListItem
-              key={v.info.id}
-              item={v}
-              category="ALL"
-              handleOpenNewTab={handleOpenNewTab}
-            />
-          ))}
-        </div>
-      );
-    });
+  const renderTabs = (tabs: ITabItem[], category: Catogories) => {
+    return (
+      <ul className={classes["tab-group"]}>
+        {tabs.map((t) => (
+          <ListItem
+            key={t.info.id}
+            item={t}
+            category={category}
+            handleOpenNewTab={handleOpenNewTab}
+          />
+        ))}
+      </ul>
+    );
   };
 
-  const renderTabs = (tabs: TabListState) => {
-    return Object.entries(tabs).map(([key, value]) => {
-      if (!value) return <></>;
-      return (
-        <div key={key}>
-          <label>{`${key}${`(${value.length})`}`}</label>
-          <div>
-            {key === "BOOKMARKED" && (
-              <div className={classes["tab-group"]}>
-                {value.map((v) => (
-                  <ListItem
-                    key={v.info.id}
-                    item={v}
-                    category="BOOKMARKED"
-                    handleOpenNewTab={handleOpenNewTab}
-                  />
-                ))}
-              </div>
-            )}
-            {key === "ALL" && handleRenderAllTab()}
-          </div>
-        </div>
-      );
-    });
-  };
-
-  return <ul className={classes["tab-list"]}>{renderTabs(tabs)}</ul>;
+  return (
+    <div className={classes["tab-list"]}>
+      <div id="all-tabs">
+        <label>{`ALL (${ALL.length})`}</label>
+        {Object.entries(groupedTab).map(([key, value]) =>
+          renderTabs(value, "ALL")
+        )}
+      </div>
+      <div id="bookmarked-tabs">
+        <label>{`BOOKMARKED (${BOOKMARKED.length})`}</label>
+        {renderTabs(BOOKMARKED, "BOOKMARKED")}
+      </div>
+    </div>
+  );
 };
