@@ -1,4 +1,4 @@
-import { BookmarkedIcon, CloseIcon, UnBookmarkedIcon } from "./icons/close-tab";
+import { BookmarkedIcon, CloseIcon, UnBookmarkedIcon } from "./icons/TabIcons";
 import classes from "../styles/Tab.module.css";
 import { Catogories, ITabItem } from "../lib/type/Tab";
 

@@ -3,12 +3,16 @@ import { ListItem } from "./ListItem";
 import classes from "../styles/Tab.module.css";
 import { Catogories, ITabItem } from "../lib/type/Tab";
 import { useMemo } from "react";
+import { useSearchTab } from "../hooks/useSearchTab";
 
 export const List = () => {
   const { tabs, handleOpenNewTab, currentWindow } = useTabs();
+  const { handleSearch, query, setQuery, deferredQuery } = useSearchTab();
   const { ALL, BOOKMARKED } = tabs;
 
-  //TODO: place the current window on the first of the array
+  const searchedAllTabs = handleSearch(ALL);
+  const searchedBookmarkedTabs = handleSearch(BOOKMARKED);
+
   const handleGroupTabsByWindow = (tabs: ITabItem[]) => {
     const groups: { [id: number]: ITabItem[] } = {};
 
@@ -22,7 +26,7 @@ export const List = () => {
   };
 
   const allTabArrSortedByWindow = useMemo(() => {
-    const groupedByWindow = handleGroupTabsByWindow(ALL);
+    const groupedByWindow = handleGroupTabsByWindow(searchedAllTabs);
     const arr = Object.entries(groupedByWindow);
 
     if (!currentWindow || !currentWindow.id) return arr;
@@ -37,7 +41,7 @@ export const List = () => {
     arr[indexOfCurrentWindowGroup] = temp;
 
     return arr;
-  }, [ALL.length, currentWindow]);
+  }, [searchedAllTabs.length, currentWindow]);
 
   const renderTabs = (tabs: ITabItem[], category: Catogories) => {
     return (
@@ -56,15 +60,22 @@ export const List = () => {
 
   return (
     <div className={classes["tab-list"]}>
+      <input
+        className={classes["searchbar"]}
+        onChange={(e) => setQuery(e.target.value)}
+        value={query}
+        placeholder="Search..."
+      />
+
       <div id="all-tabs">
-        <label>{`ALL (${ALL.length})`}</label>
+        <label>{`ALL (${searchedAllTabs.length})`}</label>
         {allTabArrSortedByWindow.map(([key, value]) =>
           renderTabs(value, "ALL")
         )}
       </div>
       <div id="bookmarked-tabs">
-        <label>{`BOOKMARKED (${BOOKMARKED.length})`}</label>
-        {renderTabs(BOOKMARKED, "BOOKMARKED")}
+        <label>{`BOOKMARKED (${searchedBookmarkedTabs.length})`}</label>
+        {renderTabs(searchedBookmarkedTabs, "BOOKMARKED")}
       </div>
     </div>
   );

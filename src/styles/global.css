@@ -1,0 +1,17 @@
+:root {
+  --border-ra: 1rem;
+  --border-ra-lg: 100%;
+  --color: #413b3b;
+  --color-light: #948c8c;
+  --bg: #f3f6f9;
+  --bg-dark: #c9d1d9;
+}
+
+* {
+  box-sizing: border-box;
+  border: none;
+}
+
+html {
+  color: var(--color);
+}
