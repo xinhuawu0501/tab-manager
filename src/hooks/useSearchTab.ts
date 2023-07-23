@@ -10,22 +10,20 @@ export const useSearchTab = () => {
 
     try {
       //TODO: if input is not alphabet or number, append `\`
-
       const queryRegex = new RegExp(deferredQuery, "ig");
 
-      const matchedResult = tabItems.filter((t) =>
-        queryRegex.test(t.info.title!)
+      const matchedResult = tabItems.filter(
+        (t) => t.info.title?.search(queryRegex) !== -1
       );
 
-      return matchedResult.map((t) => {
+      matchedResult.forEach((t) => {
         const matched = t.info.title!.matchAll(queryRegex);
         const matchedIndex = Array.from(matched).map(
           (r) => r.index
         ) as number[];
-
         t.searchedIndexes = matchedIndex;
-        return t;
       });
+      return matchedResult;
     } catch (error) {
       return tabItems;
     }
