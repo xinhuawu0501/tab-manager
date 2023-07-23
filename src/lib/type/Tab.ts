@@ -10,6 +10,7 @@ export type Tab = Pick<
 export interface ITabItem {
   info: Tab;
   isBookmarked: boolean;
+  searchedIndexes?: number[];
   handleNavigateTo: () => Promise<
     | [
         PromiseSettledResult<chrome.windows.Window>,

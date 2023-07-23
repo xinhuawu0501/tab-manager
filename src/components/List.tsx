@@ -52,6 +52,7 @@ export const List = () => {
             item={t}
             category={category}
             handleOpenNewTab={handleOpenNewTab}
+            query={deferredQuery}
           />
         ))}
       </ul>

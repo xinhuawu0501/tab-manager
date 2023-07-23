@@ -25,6 +25,7 @@ export const useTabs = () => {
   class TabItem {
     info: Tab;
     isBookmarked: boolean;
+    searchedIndexes?: number[];
 
     constructor(info: Tab, isBookmarked: boolean) {
       this.info = info;
