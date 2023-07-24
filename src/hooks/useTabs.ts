@@ -81,6 +81,17 @@ export const useTabs = () => {
         return [...prev.slice(0, i), this, ...prev.slice(i + 1)];
       });
     }
+
+    async handleMove(targetPosition: number) {
+      const { id } = this.info;
+      if (!id) return;
+      try {
+        return await chrome.tabs.move(id, { index: targetPosition });
+      } catch (error) {
+        console.error(error);
+        return;
+      }
+    }
   }
 
   const handleGetBookmarkedTab = async () => {
