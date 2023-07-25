@@ -1,7 +1,7 @@
-import { useTabs } from "../hooks/useTabs";
+import { handleGroupTabsByWindow, useTabs } from "../hooks/useTabs";
 import { ListItem } from "./ListItem";
 import classes from "../styles/Tab.module.css";
-import { Catogories, ITabItem } from "../lib/type/Tab";
+import { ITabItem } from "../lib/type/Tab";
 import { useMemo } from "react";
 import { useSearchTab } from "../hooks/useSearchTab";
 
@@ -12,18 +12,6 @@ export const List = () => {
 
   const searchedAllTabs = handleSearch(ALL);
   const searchedBookmarkedTabs = handleSearch(BOOKMARKED);
-
-  const handleGroupTabsByWindow = (tabs: ITabItem[]) => {
-    const groups: { [id: number]: ITabItem[] } = {};
-
-    for (const tab of tabs) {
-      const { windowId } = tab.info;
-      groups[windowId] ||= [];
-      groups[windowId].push(tab);
-    }
-
-    return groups;
-  };
 
   const allTabArrSortedByWindow = useMemo(() => {
     const groupedByWindow = handleGroupTabsByWindow(searchedAllTabs);
@@ -43,14 +31,30 @@ export const List = () => {
     return arr;
   }, [searchedAllTabs.length, currentWindow]);
 
-  const renderTabs = (tabs: ITabItem[], category: Catogories) => {
+  const renderBookmarkedTabs = (tabs: ITabItem[]) => {
     return (
       <ul className={classes["tab-group"]}>
         {tabs.map((t) => (
           <ListItem
             key={t.info.id}
             item={t}
-            category={category}
+            category="BOOKMARKED"
+            handleOpenNewTab={handleOpenNewTab}
+            query={deferredQuery}
+          />
+        ))}
+      </ul>
+    );
+  };
+
+  const renderAllTabs = (tabs: ITabItem[], windowId: string) => {
+    return (
+      <ul className={classes["tab-group"]} id={windowId}>
+        {tabs.map((t) => (
+          <ListItem
+            key={t.info.id}
+            item={t}
+            category="ALL"
             handleOpenNewTab={handleOpenNewTab}
             query={deferredQuery}
           />
@@ -71,12 +75,12 @@ export const List = () => {
       <div id="all-tabs">
         <label>{`ALL (${searchedAllTabs.length})`}</label>
         {allTabArrSortedByWindow.map(([key, value]) =>
-          renderTabs(value, "ALL")
+          renderAllTabs(value, key)
         )}
       </div>
       <div id="bookmarked-tabs">
         <label>{`BOOKMARKED (${searchedBookmarkedTabs.length})`}</label>
-        {renderTabs(searchedBookmarkedTabs, "BOOKMARKED")}
+        {renderBookmarkedTabs(searchedBookmarkedTabs)}
       </div>
     </div>
   );

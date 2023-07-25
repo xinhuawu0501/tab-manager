@@ -1,6 +1,18 @@
 import { useEffect, useState } from "react";
 import { ITabItem, STORAGE_KEY, Tab, TabListState } from "../lib/type/Tab";
 
+export const handleGroupTabsByWindow = (tabs: ITabItem[]) => {
+  const groups: { [id: number]: ITabItem[] } = {};
+
+  for (const tab of tabs) {
+    const { windowId } = tab.info;
+    groups[windowId] ||= [];
+    groups[windowId].push(tab);
+  }
+
+  return groups;
+};
+
 /**
  * Functionalities:
  * - Get all tab from browser
