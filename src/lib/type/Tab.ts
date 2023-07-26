@@ -7,6 +7,10 @@ export type Tab = Pick<
   "id" | "url" | "title" | "index" | "favIconUrl" | "windowId"
 >;
 
+export interface MoveProperties {
+  index: number;
+  windowId?: number;
+}
 export interface ITabItem {
   info: Tab;
   isBookmarked: boolean;

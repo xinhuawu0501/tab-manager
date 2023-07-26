@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import { ITabItem, STORAGE_KEY, Tab, TabListState } from "../lib/type/Tab";
+import {
+  ITabItem,
+  MoveProperties,
+  STORAGE_KEY,
+  Tab,
+  TabListState,
+} from "../lib/type/Tab";
 
 export const handleGroupTabsByWindow = (tabs: ITabItem[]) => {
   const groups: { [id: number]: ITabItem[] } = {};
@@ -93,17 +99,6 @@ export const useTabs = () => {
         return [...prev.slice(0, i), this, ...prev.slice(i + 1)];
       });
     }
-
-    async handleMove(targetPosition: number) {
-      const { id } = this.info;
-      if (!id) return;
-      try {
-        return await chrome.tabs.move(id, { index: targetPosition });
-      } catch (error) {
-        console.error(error);
-        return;
-      }
-    }
   }
 
   const handleGetBookmarkedTab = async () => {
@@ -157,6 +152,33 @@ export const useTabs = () => {
     });
   };
 
+  const handleMoveTab = async (
+    moveProperties: MoveProperties,
+    tabId: number
+  ) => {
+    try {
+      const tab = await chrome.tabs.move(tabId, moveProperties);
+      if (!tab) return;
+
+      const index = allTab.findIndex((t) => t.info.id == tabId);
+      if (index === -1) return;
+
+      console.log(allTab[index].info.windowId);
+      allTab[index].info.windowId = tab.windowId;
+      console.log(allTab[index].info.windowId);
+      setAllTab((prev) => [
+        ...prev.slice(0, index),
+        allTab[index],
+        ...prev.slice(index + 1),
+      ]);
+
+      return tab;
+    } catch (error) {
+      console.error(error);
+      return;
+    }
+  };
+  console.log(allTab);
   useEffect(() => {
     const handleGetCurrentWindow = async () => {
       try {
@@ -189,5 +211,5 @@ export const useTabs = () => {
       .catch((err) => console.error(err));
   }, []);
 
-  return { tabs, handleOpenNewTab, currentWindow };
+  return { allTab, tabs, handleOpenNewTab, currentWindow, handleMoveTab };
 };

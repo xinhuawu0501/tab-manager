@@ -4,11 +4,16 @@ import classes from "../styles/Tab.module.css";
 import { ITabItem } from "../lib/type/Tab";
 import { useMemo } from "react";
 import { useSearchTab } from "../hooks/useSearchTab";
+import { useDragDrop } from "../hooks/useDragDrop";
 
 export const List = () => {
-  const { tabs, handleOpenNewTab, currentWindow } = useTabs();
+  const { allTab, tabs, handleOpenNewTab, currentWindow, handleMoveTab } =
+    useTabs();
   const { handleSearch, query, setQuery, deferredQuery } = useSearchTab();
   const { ALL, BOOKMARKED } = tabs;
+  const { handleDragStart, handleDrop } = useDragDrop(handleMoveTab);
+
+  console.log("list", allTab);
 
   const searchedAllTabs = handleSearch(ALL);
   const searchedBookmarkedTabs = handleSearch(BOOKMARKED);
@@ -29,7 +34,7 @@ export const List = () => {
     arr[indexOfCurrentWindowGroup] = temp;
 
     return arr;
-  }, [searchedAllTabs.length, currentWindow]);
+  }, [ALL, searchedAllTabs, currentWindow]);
 
   const renderBookmarkedTabs = (tabs: ITabItem[]) => {
     return (
@@ -56,6 +61,8 @@ export const List = () => {
             item={t}
             category="ALL"
             handleOpenNewTab={handleOpenNewTab}
+            handleDragStart={handleDragStart}
+            handleDrop={handleDrop}
             query={deferredQuery}
           />
         ))}
