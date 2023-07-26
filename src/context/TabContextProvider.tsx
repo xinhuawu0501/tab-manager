@@ -1,24 +1,11 @@
-import {
-  PropsWithChildren,
-  createContext,
-  useEffect,
-  useReducer,
-  useState,
-} from "react";
-import {
-  ITabItem,
-  MoveProperties,
-  STORAGE_KEY,
-  Tab,
-  TabListState,
-} from "../lib/type/Tab";
+import { PropsWithChildren, createContext, useEffect, useState } from "react";
+import { ITabItem, MoveProperties, STORAGE_KEY, Tab } from "../lib/type/Tab";
 
 type TabContext = {
   ALL: ITabItem[];
   BOOKMARKED: ITabItem[];
   window?: chrome.windows.Window;
   handleMoveTab: Function;
-  handleOpenNewTab: Function;
 };
 
 export const TabCtx = createContext<TabContext>({
@@ -26,7 +13,6 @@ export const TabCtx = createContext<TabContext>({
   BOOKMARKED: [],
   window: undefined,
   handleMoveTab: () => {},
-  handleOpenNewTab: () => {},
 });
 
 export const TabContextProvider = ({ children }: PropsWithChildren) => {
@@ -34,6 +20,18 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
   const [bookmarkedTab, setBookmarkedTab] = useState<ITabItem[]>([]);
   const [currentWindow, setCurrentWindow] = useState<chrome.windows.Window>();
 
+  const handleOpenNewTab = async (url: string) => {
+    try {
+      await chrome.tabs.create({
+        active: true,
+        url: url,
+        openerTabId: currentWindow?.tabs?.[0].id ?? allTab[0].info.id,
+        windowId: currentWindow?.id ?? allTab[0].info.windowId,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
   class TabItem {
     info: Tab;
     isBookmarked: boolean;
@@ -44,7 +42,7 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
       this.isBookmarked = isBookmarked;
     }
 
-    async handleNavigateTo() {
+    async handleNavigateTo(url?: string) {
       if (!this.info.id) return;
       const { id, windowId } = this.info;
 
@@ -53,11 +51,17 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
           focused: true,
         });
         const updateTabPromise = chrome.tabs.update(id, { active: true });
-        const res = Promise.allSettled([updateWindowPromise, updateTabPromise]);
-        return res;
+        const response = await Promise.allSettled([
+          updateWindowPromise,
+          updateTabPromise,
+        ]);
+
+        response.forEach((res) => {
+          if (res.status === "rejected") throw new Error();
+        });
       } catch (error) {
         console.error(error);
-        return;
+        if (url) await handleOpenNewTab(url);
       }
     }
 
@@ -131,15 +135,6 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
     }
   };
 
-  const handleOpenNewTab = async (url: string) => {
-    await chrome.tabs.create({
-      active: true,
-      url: url,
-      openerTabId: currentWindow?.tabs?.[0].id ?? allTab[0].info.id,
-      windowId: currentWindow?.id ?? allTab[0].info.windowId,
-    });
-  };
-
   const handleMoveTab = async (
     moveProperties: MoveProperties,
     tabId: number
@@ -171,7 +166,6 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
     BOOKMARKED: bookmarkedTab,
     window: currentWindow,
     handleMoveTab: handleMoveTab,
-    handleOpenNewTab: handleOpenNewTab,
   };
 
   useEffect(() => {

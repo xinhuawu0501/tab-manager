@@ -1,4 +1,3 @@
-import { handleGroupTabsByWindow } from "../hooks/useTabs";
 import { ListItem } from "./ListItem";
 import classes from "../styles/Tab.module.css";
 import { ITabItem } from "../lib/type/Tab";
@@ -7,14 +6,20 @@ import { useSearchTab } from "../hooks/useSearchTab";
 import { useDragDrop } from "../hooks/useDragDrop";
 import { TabCtx } from "../context/TabContextProvider";
 
+export const handleGroupTabsByWindow = (tabs: ITabItem[]) => {
+  const groups: { [id: number]: ITabItem[] } = {};
+
+  for (const tab of tabs) {
+    const { windowId } = tab.info;
+    groups[windowId] ||= [];
+    groups[windowId].push(tab);
+  }
+
+  return groups;
+};
+
 export const List = () => {
-  const {
-    ALL,
-    BOOKMARKED,
-    window: currentWindow,
-    handleMoveTab,
-    handleOpenNewTab,
-  } = useContext(TabCtx);
+  const { ALL, window: currentWindow } = useContext(TabCtx);
 
   const {
     renderSearchInputField,
@@ -23,7 +28,7 @@ export const List = () => {
     searchedBookmarkedTabs,
   } = useSearchTab();
 
-  const { handleDragStart, handleDrop } = useDragDrop(handleMoveTab);
+  const { handleDragStart, handleDrop } = useDragDrop();
 
   const allTabArrSortedByWindow = useMemo(() => {
     const groupedByWindow = handleGroupTabsByWindow(searchedAllTabs);
@@ -50,7 +55,6 @@ export const List = () => {
             key={t.info.id}
             item={t}
             category="BOOKMARKED"
-            handleOpenNewTab={handleOpenNewTab}
             query={deferredQuery}
           />
         ))}
@@ -66,7 +70,6 @@ export const List = () => {
             key={t.info.id}
             item={t}
             category="ALL"
-            handleOpenNewTab={handleOpenNewTab}
             handleDragStart={handleDragStart}
             handleDrop={handleDrop}
             query={deferredQuery}

@@ -6,18 +6,15 @@ import { DragEventHandler } from "../hooks/useDragDrop";
 export const ListItem = ({
   item,
   category,
-  handleOpenNewTab,
   query,
   handleDragStart,
   handleDrop,
 }: {
   item: ITabItem;
   category: Catogories;
-  handleOpenNewTab: Function;
+  query: string;
   handleDragStart?: DragEventHandler["handleDragStart"];
   handleDrop?: DragEventHandler["handleDrop"];
-
-  query: string;
 }) => {
   const { title, url, favIconUrl, windowId } = item.info;
 
@@ -75,17 +72,8 @@ export const ListItem = ({
       <div
         className={classes["title"]}
         onClick={() => {
-          item
-            .handleNavigateTo()
-            .then((res) => {
-              if (!res || res.find((t) => t.status === "rejected"))
-                return Promise.reject();
-            })
-            .then(
-              (res) => {},
-              (rej) => handleOpenNewTab(url)
-            )
-            .catch((err) => console.error(err));
+          //@ts-expect-error
+          item.handleNavigateTo(url);
         }}
       >
         {renderHighlightedTitle()}

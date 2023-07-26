@@ -1,4 +1,6 @@
+import { useContext } from "react";
 import { ITabItem } from "../lib/type/Tab";
+import { TabCtx } from "../context/TabContextProvider";
 
 export type DragEventHandler = {
   //@ts-ignore
@@ -8,7 +10,8 @@ export type DragEventHandler = {
 };
 
 //@ts-ignore
-export const useDragDrop = (handleMoveTab) => {
+export const useDragDrop = () => {
+  const { handleMoveTab } = useContext(TabCtx);
   //@ts-ignore
   const handleDragStart = (e: DragEvent<HTMLLIElement>, item: ITabItem) => {
     const transferredData = JSON.stringify(item);

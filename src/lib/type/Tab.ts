@@ -15,13 +15,7 @@ export interface ITabItem {
   info: Tab;
   isBookmarked: boolean;
   searchedIndexes?: number[];
-  handleNavigateTo: () => Promise<
-    | [
-        PromiseSettledResult<chrome.windows.Window>,
-        PromiseSettledResult<chrome.tabs.Tab>
-      ]
-    | undefined
-  >;
+  handleNavigateTo: (url: string) => void;
   handleClose: () => void;
   handleToggleBookmark: () => void;
 }
