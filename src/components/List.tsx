@@ -1,22 +1,29 @@
-import { handleGroupTabsByWindow, useTabs } from "../hooks/useTabs";
+import { handleGroupTabsByWindow } from "../hooks/useTabs";
 import { ListItem } from "./ListItem";
 import classes from "../styles/Tab.module.css";
 import { ITabItem } from "../lib/type/Tab";
-import { useMemo } from "react";
+import { useContext, useMemo } from "react";
 import { useSearchTab } from "../hooks/useSearchTab";
 import { useDragDrop } from "../hooks/useDragDrop";
+import { TabCtx } from "../context/TabContextProvider";
 
 export const List = () => {
-  const { allTab, tabs, handleOpenNewTab, currentWindow, handleMoveTab } =
-    useTabs();
-  const { handleSearch, query, setQuery, deferredQuery } = useSearchTab();
-  const { ALL, BOOKMARKED } = tabs;
+  const {
+    ALL,
+    BOOKMARKED,
+    window: currentWindow,
+    handleMoveTab,
+    handleOpenNewTab,
+  } = useContext(TabCtx);
+
+  const {
+    renderSearchInputField,
+    deferredQuery,
+    searchedAllTabs,
+    searchedBookmarkedTabs,
+  } = useSearchTab();
+
   const { handleDragStart, handleDrop } = useDragDrop(handleMoveTab);
-
-  console.log("list", allTab);
-
-  const searchedAllTabs = handleSearch(ALL);
-  const searchedBookmarkedTabs = handleSearch(BOOKMARKED);
 
   const allTabArrSortedByWindow = useMemo(() => {
     const groupedByWindow = handleGroupTabsByWindow(searchedAllTabs);
@@ -24,8 +31,7 @@ export const List = () => {
 
     if (!currentWindow || !currentWindow.id) return arr;
     const indexOfCurrentWindowGroup = arr.findIndex(
-      //@ts-expect-error
-      ([k, v]) => k == currentWindow.id
+      ([k, v]) => Number(k) == currentWindow.id
     );
     if (indexOfCurrentWindowGroup === -1) return arr;
 
@@ -72,12 +78,7 @@ export const List = () => {
 
   return (
     <div className={classes["tab-list"]}>
-      <input
-        className={classes["searchbar"]}
-        onChange={(e) => setQuery(e.target.value)}
-        value={query}
-        placeholder="Search..."
-      />
+      {renderSearchInputField()}
 
       <div id="all-tabs">
         <label>{`ALL (${searchedAllTabs.length})`}</label>

@@ -32,6 +32,7 @@
         "pages/**",
         "public/**",
         "hooks/**",
+        "context/**",
         "components/**",
         "next.config.js",
         "extension/manifest.json"

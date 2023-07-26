@@ -1,4 +1,10 @@
-import { useState } from "react";
+import {
+  PropsWithChildren,
+  createContext,
+  useEffect,
+  useReducer,
+  useState,
+} from "react";
 import {
   ITabItem,
   MoveProperties,
@@ -7,38 +13,26 @@ import {
   TabListState,
 } from "../lib/type/Tab";
 
-export const handleGroupTabsByWindow = (tabs: ITabItem[]) => {
-  const groups: { [id: number]: ITabItem[] } = {};
-
-  for (const tab of tabs) {
-    const { windowId } = tab.info;
-    groups[windowId] ||= [];
-    groups[windowId].push(tab);
-  }
-
-  return groups;
+type TabContext = {
+  ALL: ITabItem[];
+  BOOKMARKED: ITabItem[];
+  window?: chrome.windows.Window;
+  handleMoveTab: Function;
+  handleOpenNewTab: Function;
 };
 
-const handleStoreInStorage = (data: ITabItem[]) => {
-  if (!data) return;
-  chrome.storage.local.set({ [STORAGE_KEY.BOOKMARKED]: data });
-};
+export const TabCtx = createContext<TabContext>({
+  ALL: [],
+  BOOKMARKED: [],
+  window: undefined,
+  handleMoveTab: () => {},
+  handleOpenNewTab: () => {},
+});
 
-/**
- * Functionalities:
- * - Get all tab from browser
- * - Close tab
- * - Store tab
- */
-export const useTabs = () => {
+export const TabContextProvider = ({ children }: PropsWithChildren) => {
   const [allTab, setAllTab] = useState<ITabItem[]>([]);
   const [bookmarkedTab, setBookmarkedTab] = useState<ITabItem[]>([]);
   const [currentWindow, setCurrentWindow] = useState<chrome.windows.Window>();
-
-  const tabs: TabListState = {
-    ALL: allTab,
-    BOOKMARKED: bookmarkedTab,
-  };
 
   class TabItem {
     info: Tab;
@@ -87,7 +81,7 @@ export const useTabs = () => {
         if (isBookmarked) newState = prev.filter((t) => t.info.id !== id);
         else newState = prev.concat(this);
 
-        handleStoreInStorage(newState);
+        chrome.storage.local.set({ [STORAGE_KEY.BOOKMARKED]: newState });
         return newState;
       });
 
@@ -100,20 +94,40 @@ export const useTabs = () => {
     }
   }
 
-  const handleGetBookmarkedTab = async () => {
+  const getAllTabs = async (data?: ITabItem[]) => {
+    try {
+      const tabs = await chrome.tabs.query({});
+      const [currentTab] = await chrome.tabs.query({
+        active: true,
+        lastFocusedWindow: true,
+      });
+
+      const sortedTab = [
+        currentTab,
+        ...tabs.filter((t) => t.id !== currentTab.id),
+      ];
+
+      return sortedTab.map((t) => {
+        const isBookmarked = data
+          ? !!data.find((tab) => t.id === tab.info.id)
+          : false;
+        return new TabItem(t, isBookmarked);
+      });
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  };
+
+  const getBookmarkedTab = async () => {
     try {
       const data: { [key: string]: ITabItem[] } =
         await chrome.storage.local.get([STORAGE_KEY.BOOKMARKED]);
 
-      if (!data || !data.BOOKMARKED) return [];
-      const { BOOKMARKED } = data;
-
-      setBookmarkedTab(
-        BOOKMARKED.map((t) => new TabItem(t.info, t.isBookmarked))
-      );
-      return BOOKMARKED;
+      return data.BOOKMARKED.map((t) => new TabItem(t.info, t.isBookmarked));
     } catch (error) {
       console.error(error);
+      return [];
     }
   };
 
@@ -137,9 +151,8 @@ export const useTabs = () => {
       const index = allTab.findIndex((t) => t.info.id == tabId);
       if (index === -1) return;
 
-      console.log(allTab[index].info.windowId);
       allTab[index].info.windowId = tab.windowId;
-      console.log(allTab[index].info.windowId);
+
       setAllTab((prev) => [
         ...prev.slice(0, index),
         allTab[index],
@@ -153,5 +166,38 @@ export const useTabs = () => {
     }
   };
 
-  return { handleOpenNewTab, handleMoveTab };
+  const contextValue = {
+    ALL: allTab,
+    BOOKMARKED: bookmarkedTab,
+    window: currentWindow,
+    handleMoveTab: handleMoveTab,
+    handleOpenNewTab: handleOpenNewTab,
+  };
+
+  useEffect(() => {
+    const getInitialTabs = async () => {
+      try {
+        const bookmarkedTabs = await getBookmarkedTab();
+        const allTabs = await getAllTabs(bookmarkedTabs);
+
+        setAllTab(allTabs);
+        setBookmarkedTab(bookmarkedTabs);
+      } catch (error) {}
+    };
+
+    getInitialTabs();
+  }, []);
+
+  useEffect(() => {
+    const getInitialWindow = async () => {
+      try {
+        const window = await chrome.windows.getCurrent();
+        if (window) setCurrentWindow(window);
+      } catch (error) {}
+    };
+
+    getInitialWindow();
+  }, []);
+
+  return <TabCtx.Provider value={contextValue}>{children}</TabCtx.Provider>;
 };
