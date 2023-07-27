@@ -1,12 +1,21 @@
-import { PropsWithChildren, createContext, useEffect, useState } from "react";
-import { ITabItem, MoveProperties, STORAGE_KEY, Tab } from "../lib/type/Tab";
-
-type TabContext = {
-  ALL: ITabItem[];
-  BOOKMARKED: ITabItem[];
-  window?: chrome.windows.Window;
-  handleMoveTab: Function;
-};
+import {
+  PropsWithChildren,
+  Reducer,
+  createContext,
+  useEffect,
+  useReducer,
+  useState,
+} from "react";
+import {
+  Action,
+  ActionType,
+  ITabItem,
+  MoveProperties,
+  STORAGE_KEY,
+  Tab,
+  TabContext,
+  TabListState,
+} from "../lib/type/Tab";
 
 export const TabCtx = createContext<TabContext>({
   ALL: [],
@@ -15,18 +24,78 @@ export const TabCtx = createContext<TabContext>({
   handleMoveTab: () => {},
 });
 
+const initialState: TabListState = {
+  ALL: [],
+  BOOKMARKED: [],
+};
+
+function reducer(state: TabListState, action: Action): TabListState {
+  const { payload, initState } = action;
+  switch (action.type) {
+    case "INIT": {
+      if (initState) return initState;
+      return state;
+    }
+    case "CLOSE": {
+      const newAllTabState = state.ALL.filter(
+        (t: ITabItem) => t.info.id !== payload?.info.id
+      );
+      return {
+        ...state,
+        ALL: newAllTabState,
+      };
+    }
+    case "OPEN_NEW": {
+      if (!payload) return state;
+      return { ...state, ALL: state.ALL.concat(payload) };
+    }
+    case "TOGGLE_BOOKMARK": {
+      if (!payload) return state;
+      const { id } = payload.info;
+      const { ALL, BOOKMARKED } = state;
+      const isBookmarked = BOOKMARKED.find((t: ITabItem) => t.info.id === id);
+
+      let newBookmarkedState: ITabItem[] = [];
+      let newAllTabState: ITabItem[] = [];
+      if (isBookmarked) {
+        newBookmarkedState = BOOKMARKED.filter(
+          (t: ITabItem) => t.info.id !== id
+        );
+      } else newBookmarkedState = BOOKMARKED.concat(payload);
+
+      const indexInAllTab = ALL.findIndex((t: ITabItem) => t.info.id === id);
+      newAllTabState =
+        indexInAllTab === -1
+          ? ALL
+          : [
+              ...ALL.slice(0, indexInAllTab),
+              payload,
+              ...ALL.slice(indexInAllTab + 1),
+            ];
+      return { ALL: newAllTabState, BOOKMARKED: newBookmarkedState };
+    }
+    default:
+      return state;
+  }
+}
+
 export const TabContextProvider = ({ children }: PropsWithChildren) => {
   const [allTab, setAllTab] = useState<ITabItem[]>([]);
-  const [bookmarkedTab, setBookmarkedTab] = useState<ITabItem[]>([]);
   const [currentWindow, setCurrentWindow] = useState<chrome.windows.Window>();
+  const [state, dispatch] = useReducer<Reducer<TabListState, Action>>(
+    reducer,
+    initialState
+  );
+
+  const { ALL, BOOKMARKED } = state;
 
   const handleOpenNewTab = async (url: string) => {
     try {
       await chrome.tabs.create({
         active: true,
         url: url,
-        openerTabId: currentWindow?.tabs?.[0].id ?? allTab[0].info.id,
-        windowId: currentWindow?.id ?? allTab[0].info.windowId,
+        openerTabId: currentWindow?.tabs?.[0].id ?? ALL[0].info.id,
+        windowId: currentWindow?.id ?? ALL[0].info.windowId,
       });
     } catch (error) {
       console.error(error);
@@ -56,12 +125,10 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
           updateTabPromise,
         ]);
 
-        response.forEach((res) => {
-          if (res.status === "rejected") throw new Error();
-        });
+        if (response.find((r) => r.status === "rejected") && url)
+          await handleOpenNewTab(url);
       } catch (error) {
         console.error(error);
-        if (url) await handleOpenNewTab(url);
       }
     }
 
@@ -70,31 +137,13 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
       const { id } = this.info;
 
       chrome.tabs.remove(id);
-      setAllTab((prev) => prev.filter((t) => t.info.id !== id));
+      dispatch({ type: ActionType.CLOSE, payload: this });
     }
 
     handleToggleBookmark() {
       if (!this.info.id) return;
-      const { id } = this.info;
-
       this.isBookmarked = !this.isBookmarked;
-
-      setBookmarkedTab((prev) => {
-        let newState = [];
-        const isBookmarked = !!prev.find((t) => t.info.id === id);
-        if (isBookmarked) newState = prev.filter((t) => t.info.id !== id);
-        else newState = prev.concat(this);
-
-        chrome.storage.local.set({ [STORAGE_KEY.BOOKMARKED]: newState });
-        return newState;
-      });
-
-      //to update bookmark icon in `allTab` list
-      setAllTab((prev) => {
-        const i = prev.findIndex((t) => t.info.id === id);
-        if (i == -1) return prev;
-        return [...prev.slice(0, i), this, ...prev.slice(i + 1)];
-      });
+      dispatch({ type: ActionType.TOGGLE_BOOKMARK, payload: this });
     }
   }
 
@@ -162,8 +211,7 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
   };
 
   const contextValue = {
-    ALL: allTab,
-    BOOKMARKED: bookmarkedTab,
+    ...state,
     window: currentWindow,
     handleMoveTab: handleMoveTab,
   };
@@ -174,8 +222,10 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
         const bookmarkedTabs = await getBookmarkedTab();
         const allTabs = await getAllTabs(bookmarkedTabs);
 
-        setAllTab(allTabs);
-        setBookmarkedTab(bookmarkedTabs);
+        dispatch({
+          type: ActionType.INIT,
+          initState: { ALL: allTabs, BOOKMARKED: bookmarkedTabs },
+        });
       } catch (error) {}
     };
 

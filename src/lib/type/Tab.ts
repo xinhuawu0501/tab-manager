@@ -25,3 +25,23 @@ export type Catogories = "ALL" | "BOOKMARKED";
 export type TabListState = {
   [k in Catogories]: ITabItem[];
 };
+
+export enum ActionType {
+  INIT = "INIT",
+  OPEN_NEW = "OPEN_NEW",
+  CLOSE = "CLOSE",
+  TOGGLE_BOOKMARK = "TOGGLE_BOOKMARK",
+}
+
+export type Action = {
+  type: ActionType;
+  payload?: ITabItem;
+  initState?: TabListState;
+};
+
+export type TabContext = {
+  ALL: ITabItem[];
+  BOOKMARKED: ITabItem[];
+  window?: chrome.windows.Window;
+  handleMoveTab: Function;
+};
