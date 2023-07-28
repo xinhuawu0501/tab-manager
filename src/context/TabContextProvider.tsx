@@ -4,8 +4,8 @@ import {
   createContext,
   useEffect,
   useReducer,
-  useState,
 } from "react";
+
 import {
   Action,
   ActionType,
@@ -22,6 +22,7 @@ export const TabCtx = createContext<TabContext>({
   BOOKMARKED: [],
   window: undefined,
   handleMoveTab: () => {},
+  handleOpenNewTab: () => {},
 });
 
 const initialState: TabListState = {
@@ -32,9 +33,10 @@ const initialState: TabListState = {
 
 const reducer = (state: TabListState, action: Action): TabListState => {
   const { payload, initState } = action;
+
   switch (action.type) {
     case ActionType.INIT: {
-      if (initState) return initState;
+      if (initState) return { ...state, ...initState };
       else return state;
     }
 
@@ -105,18 +107,6 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
 
   const { ALL, window } = state;
 
-  const handleOpenNewTab = async (url: string) => {
-    try {
-      await chrome.tabs.create({
-        active: true,
-        url: url,
-        openerTabId: window?.tabs?.[0].id ?? ALL[0].info.id,
-        windowId: window?.id ?? ALL[0].info.windowId,
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  };
   class TabItem {
     info: Tab;
     isBookmarked: boolean;
@@ -127,7 +117,7 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
       this.isBookmarked = isBookmarked;
     }
 
-    async handleNavigateTo(url?: string) {
+    async handleNavigateTo() {
       if (!this.info.id) return;
       const { id, windowId } = this.info;
 
@@ -141,10 +131,15 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
           updateTabPromise,
         ]);
 
-        if (response.find((r) => r.status === "rejected") || !url)
-          throw new Error("Fail to find tab. Please open a new one.");
+        const isFullfilled = response.every(
+          (res) => res.status === "fulfilled"
+        );
+
+        if (!isFullfilled)
+          throw new Error("Fail to open clicked tab. Please open a new one.");
       } catch (error) {
         console.error(error);
+        throw new Error();
       }
     }
 
@@ -200,6 +195,19 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
     }
   };
 
+  const handleOpenNewTab = async (url: string) => {
+    try {
+      await chrome.tabs.create({
+        active: true,
+        url: url,
+        openerTabId: window?.tabs?.[0].id ?? ALL[0].info.id,
+        windowId: window?.id ?? ALL[0].info.windowId,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const handleMoveTab = async (
     moveProperties: MoveProperties,
     tabId: number
@@ -223,6 +231,7 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
   const contextValue = {
     ...state,
     window: window,
+    handleOpenNewTab: handleOpenNewTab,
     handleMoveTab: handleMoveTab,
   };
 
@@ -231,10 +240,11 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
       try {
         const bookmarkedTabs = await getBookmarkedTab();
         const allTabs = await getAllTabs(bookmarkedTabs);
+        if (!bookmarkedTabs || !allTabs) throw new Error("Fail to get tabs");
 
         dispatch({
           type: ActionType.INIT,
-          initState: { ...state, ALL: allTabs, BOOKMARKED: bookmarkedTabs },
+          initState: { ALL: allTabs, BOOKMARKED: bookmarkedTabs },
         });
       } catch (error) {
         console.error(error);
@@ -248,11 +258,11 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
     const getInitialWindow = async () => {
       try {
         const window = await chrome.windows.getCurrent();
-        if (window)
-          dispatch({
-            type: ActionType.INIT,
-            initState: { ...state, window: window },
-          });
+        if (!window) throw new Error("Fail to get current window");
+        dispatch({
+          type: ActionType.INIT,
+          initState: { window: window },
+        });
       } catch (error) {
         console.error(error);
       }

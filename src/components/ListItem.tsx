@@ -2,6 +2,8 @@ import { BookmarkedIcon, CloseIcon, UnBookmarkedIcon } from "./icons/TabIcons";
 import classes from "../styles/Tab.module.css";
 import { Catogories, ITabItem } from "../lib/type/Tab";
 import { DragEventHandler } from "../hooks/useDragDrop";
+import { useContext } from "react";
+import { TabCtx } from "../context/TabContextProvider";
 
 export const ListItem = ({
   item,
@@ -17,6 +19,7 @@ export const ListItem = ({
   handleDrop?: DragEventHandler["handleDrop"];
 }) => {
   const { title, url, favIconUrl, windowId } = item.info;
+  const { handleOpenNewTab } = useContext(TabCtx);
 
   const renderHighlightedTitle = () => {
     const { searchedIndexes } = item;
@@ -73,7 +76,7 @@ export const ListItem = ({
         className={classes["title"]}
         onClick={() => {
           //@ts-expect-error
-          item.handleNavigateTo(url);
+          item.handleNavigateTo(url).catch(() => handleOpenNewTab(url));
         }}
       >
         {renderHighlightedTitle()}

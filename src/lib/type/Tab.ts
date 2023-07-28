@@ -45,7 +45,7 @@ export enum ActionType {
 export type Action = {
   type: ActionType;
   payload?: ITabItem;
-  initState?: TabListState & CurrentWindow;
+  initState?: Partial<TabListState & CurrentWindow>;
 };
 
 export type TabContext = {
@@ -53,4 +53,5 @@ export type TabContext = {
   BOOKMARKED: ITabItem[];
   window?: chrome.windows.Window;
   handleMoveTab: Function;
+  handleOpenNewTab: Function;
 };
