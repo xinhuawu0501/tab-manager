@@ -27,11 +27,7 @@ export const useDragDrop = () => {
     const droppedZoneWindowId = e.currentTarget.id;
 
     if (windowId !== Number(droppedZoneWindowId) && id) {
-      const movedtab = await handleMoveTab(
-        { index: -1, windowId: +droppedZoneWindowId },
-        id
-      );
-      return movedtab;
+      await handleMoveTab({ index: -1, windowId: +droppedZoneWindowId }, id);
     }
   };
 

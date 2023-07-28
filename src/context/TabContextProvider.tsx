@@ -27,16 +27,18 @@ export const TabCtx = createContext<TabContext>({
 const initialState: TabListState = {
   ALL: [],
   BOOKMARKED: [],
+  window: undefined,
 };
 
-function reducer(state: TabListState, action: Action): TabListState {
+const reducer = (state: TabListState, action: Action): TabListState => {
   const { payload, initState } = action;
   switch (action.type) {
-    case "INIT": {
+    case ActionType.INIT: {
       if (initState) return initState;
-      return state;
+      else return state;
     }
-    case "CLOSE": {
+
+    case ActionType.CLOSE: {
       const newAllTabState = state.ALL.filter(
         (t: ITabItem) => t.info.id !== payload?.info.id
       );
@@ -45,11 +47,13 @@ function reducer(state: TabListState, action: Action): TabListState {
         ALL: newAllTabState,
       };
     }
-    case "OPEN_NEW": {
+
+    case ActionType.OPEN_NEW: {
       if (!payload) return state;
       return { ...state, ALL: state.ALL.concat(payload) };
     }
-    case "TOGGLE_BOOKMARK": {
+
+    case ActionType.TOGGLE_BOOKMARK: {
       if (!payload) return state;
       const { id } = payload.info;
       const { ALL, BOOKMARKED } = state;
@@ -72,30 +76,42 @@ function reducer(state: TabListState, action: Action): TabListState {
               payload,
               ...ALL.slice(indexInAllTab + 1),
             ];
-      return { ALL: newAllTabState, BOOKMARKED: newBookmarkedState };
+      return { ...state, ALL: newAllTabState, BOOKMARKED: newBookmarkedState };
     }
+
+    case ActionType.UPDATE: {
+      if (!payload) return state;
+      const { ALL } = state;
+      const { id } = payload?.info;
+
+      const index = ALL.findIndex((t) => t.info.id === id);
+
+      return {
+        ...state,
+        ALL: [...ALL.slice(0, index), payload, ...ALL.slice(index + 1)],
+      };
+    }
+
     default:
       return state;
   }
-}
+};
 
 export const TabContextProvider = ({ children }: PropsWithChildren) => {
-  const [allTab, setAllTab] = useState<ITabItem[]>([]);
-  const [currentWindow, setCurrentWindow] = useState<chrome.windows.Window>();
   const [state, dispatch] = useReducer<Reducer<TabListState, Action>>(
     reducer,
     initialState
   );
 
-  const { ALL, BOOKMARKED } = state;
+  const { ALL, window } = state;
 
   const handleOpenNewTab = async (url: string) => {
     try {
       await chrome.tabs.create({
         active: true,
         url: url,
-        openerTabId: currentWindow?.tabs?.[0].id ?? ALL[0].info.id,
-        windowId: currentWindow?.id ?? ALL[0].info.windowId,
+        openerTabId: window?.tabs?.[0].id ?? ALL[0].info.id,
+        windowId: window?.id ?? ALL[0].info.windowId,
       });
     } catch (error) {
       console.error(error);
@@ -125,8 +141,8 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
           updateTabPromise,
         ]);
 
-        if (response.find((r) => r.status === "rejected") && url)
-          await handleOpenNewTab(url);
+        if (response.find((r) => r.status === "rejected") || !url)
+          throw new Error("Fail to find tab. Please open a new one.");
       } catch (error) {
         console.error(error);
       }
@@ -190,29 +206,23 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
   ) => {
     try {
       const tab = await chrome.tabs.move(tabId, moveProperties);
-      if (!tab) return;
+      if (!tab) throw new Error("Fail to move tab");
 
-      const index = allTab.findIndex((t) => t.info.id == tabId);
-      if (index === -1) return;
+      const index = ALL.findIndex((t) => t.info.id == tabId);
+      ALL[index].info.windowId = tab.windowId;
 
-      allTab[index].info.windowId = tab.windowId;
-
-      setAllTab((prev) => [
-        ...prev.slice(0, index),
-        allTab[index],
-        ...prev.slice(index + 1),
-      ]);
-
-      return tab;
+      dispatch({
+        type: ActionType.UPDATE,
+        payload: ALL[index],
+      });
     } catch (error) {
       console.error(error);
-      return;
     }
   };
 
   const contextValue = {
     ...state,
-    window: currentWindow,
+    window: window,
     handleMoveTab: handleMoveTab,
   };
 
@@ -224,9 +234,11 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
 
         dispatch({
           type: ActionType.INIT,
-          initState: { ALL: allTabs, BOOKMARKED: bookmarkedTabs },
+          initState: { ...state, ALL: allTabs, BOOKMARKED: bookmarkedTabs },
         });
-      } catch (error) {}
+      } catch (error) {
+        console.error(error);
+      }
     };
 
     getInitialTabs();
@@ -236,8 +248,14 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
     const getInitialWindow = async () => {
       try {
         const window = await chrome.windows.getCurrent();
-        if (window) setCurrentWindow(window);
-      } catch (error) {}
+        if (window)
+          dispatch({
+            type: ActionType.INIT,
+            initState: { ...state, window: window },
+          });
+      } catch (error) {
+        console.error(error);
+      }
     };
 
     getInitialWindow();
