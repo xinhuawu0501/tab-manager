@@ -1,4 +1,9 @@
-import { BookmarkedIcon, CloseIcon, UnBookmarkedIcon } from "./icons/TabIcons";
+import {
+  BookmarkedIcon,
+  CloseIcon,
+  DragIcon,
+  UnBookmarkedIcon,
+} from "./icons/TabIcons";
 import classes from "../styles/Tab.module.css";
 import { Catogories, ITabItem } from "../lib/type/Tab";
 import { DragEventHandler } from "../hooks/useDragDrop";
@@ -20,6 +25,8 @@ export const ListItem = ({
 }) => {
   const { title, url, favIconUrl, windowId } = item.info;
   const { handleOpenNewTab } = useContext(TabCtx);
+
+  const isDraggable = category == "ALL";
 
   const renderHighlightedTitle = () => {
     const { searchedIndexes } = item;
@@ -55,17 +62,18 @@ export const ListItem = ({
     <li
       id={String(windowId)}
       className={classes["tab-item"]}
-      draggable={category === "ALL"}
+      draggable={isDraggable}
       onDragStart={(e) => {
-        if (category !== "ALL") return;
+        if (!isDraggable) return;
         handleDragStart!(e, item);
       }}
       onDragOver={(e) => e.preventDefault()}
       onDrop={(e) => {
-        if (category !== "ALL") return;
+        if (!isDraggable) return;
         handleDrop!(e);
       }}
     >
+      <DragIcon />
       {favIconUrl ? (
         <img src={favIconUrl} alt={`${title}_img`} />
       ) : (

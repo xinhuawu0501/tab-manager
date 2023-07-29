@@ -22,9 +22,10 @@
 
 .tab-item {
   border-radius: var(--border-ra);
-  padding: 3px 8px;
-  width: 20rem;
+  padding: 3px 5px;
+  width: 22rem;
   display: flex;
+  justify-content: space-evenly;
   cursor: pointer;
   background-color: var(--bg);
 }
@@ -39,7 +40,7 @@
 }
 
 .tab-item > * {
-  margin: 0.5rem;
+  margin: 0.3rem;
 }
 
 .tab-item img {
@@ -51,7 +52,7 @@
 }
 
 .tab-item .title {
-  width: 15rem;
+  width: 60%;
   text-overflow: ellipsis;
 }
 
