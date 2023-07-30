@@ -1,22 +1,27 @@
 .tab-list {
   display: flex;
   flex-direction: column;
-  padding: 0.5rem;
+  padding: 0.5rem 0;
   list-style: none;
 }
 
+.tab-list > * {
+  margin: 0.5rem;
+}
+
 .tab-list label {
-  padding: 2rem 0;
+  display: block;
+  width: max-content;
+  padding: 0.8rem;
+  border-radius: var(--border-ra);
   font-size: 1.2rem;
   font-weight: 600;
-  margin-bottom: 3rem;
 }
 
 .tab-group {
   background-color: var(--bg);
   border-radius: var(--border-ra);
-  margin-bottom: 1rem;
-  padding: 1rem 0.5rem;
+  padding: 1rem 0.3rem;
   min-width: 20rem;
 }
 
@@ -25,7 +30,7 @@
   justify-content: space-evenly;
   border-radius: var(--border-ra);
   padding: 3px 5px;
-  width: 22rem;
+  width: 21rem;
   cursor: pointer;
   background-color: var(--bg);
 }
@@ -40,7 +45,7 @@
 }
 
 .tab-item > * {
-  margin: 0.8rem 0.3rem;
+  margin: 0.8rem 0.2rem;
 }
 
 .tab-item img {
@@ -79,7 +84,6 @@
   display: flex;
   align-items: center;
   position: relative;
-  margin: 1rem 0;
   padding: 0.8rem;
   border-radius: var(--border-ra);
   background-color: var(--bg-dark);
