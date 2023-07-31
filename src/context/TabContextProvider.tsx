@@ -105,7 +105,7 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
     initialState
   );
 
-  const { ALL, window } = state;
+  const { ALL, window, BOOKMARKED } = state;
 
   class TabItem {
     info: Tab;
@@ -270,6 +270,11 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
 
     getInitialWindow();
   }, []);
+
+  useEffect(() => {
+    if (!BOOKMARKED) return;
+    chrome.storage.local.set({ [STORAGE_KEY.BOOKMARKED]: BOOKMARKED });
+  }, [BOOKMARKED.length]);
 
   return <TabCtx.Provider value={contextValue}>{children}</TabCtx.Provider>;
 };
