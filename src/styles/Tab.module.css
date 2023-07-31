@@ -59,6 +59,7 @@
 .tab-item .title {
   width: 60%;
   text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .tab-item button {

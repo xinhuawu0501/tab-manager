@@ -188,7 +188,7 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
       const data: { [key: string]: ITabItem[] } =
         await chrome.storage.local.get([STORAGE_KEY.BOOKMARKED]);
 
-      if (!data?.BOOKMARKED) throw new Error();
+      if (!data?.BOOKMARKED) return [];
 
       return data.BOOKMARKED.map((t) => new TabItem(t.info, t.isBookmarked));
     } catch (error) {
@@ -275,8 +275,15 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     if (!BOOKMARKED) return;
+
     chrome.storage.local.set({ [STORAGE_KEY.BOOKMARKED]: BOOKMARKED });
   }, [BOOKMARKED.length]);
+
+  useEffect(() => {
+    chrome.storage.onChanged.addListener((change, area) => {
+      console.log(change, area);
+    });
+  }, []);
 
   return <TabCtx.Provider value={contextValue}>{children}</TabCtx.Provider>;
 };

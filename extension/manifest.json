@@ -4,17 +4,17 @@
   "version": "1.0.0",
   "description": "An powerful tab management tool that offers: navigate, drag & drop, close, bookmark, and instant search functionalities.",
   "icons": {
-    "16": "./images/icons8-tab-16.png",
-    "32": "./images/icons8-tab-32.png",
-    "48": "./images/icons8-tab-48.png"
+    "16": "./images/16_16.png",
+    "32": "./images/32_32.png",
+    "48": "./images/48_48.png"
   },
   "action": {
     "default_popup": "index.html",
     "default_title": "Tab Master",
     "default_icon": {
-      "16": "./images/icons8-tab-16.png",
-      "32": "./images/icons8-tab-32.png",
-      "48": "./images/icons8-tab-48.png"
+      "16": "./images/16_16.png",
+      "32": "./images/32_32.png",
+      "48": "./images/48_48.png"
     }
   },
   "permissions": ["tabs", "activeTab", "tabGroups", "storage"]
