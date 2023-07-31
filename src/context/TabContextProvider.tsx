@@ -188,6 +188,8 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
       const data: { [key: string]: ITabItem[] } =
         await chrome.storage.local.get([STORAGE_KEY.BOOKMARKED]);
 
+      if (!data?.BOOKMARKED) throw new Error();
+
       return data.BOOKMARKED.map((t) => new TabItem(t.info, t.isBookmarked));
     } catch (error) {
       console.error(error);
