@@ -17,5 +17,5 @@
       "48": "./images/48_48.png"
     }
   },
-  "permissions": ["tabs", "activeTab", "tabGroups", "storage"]
+  "permissions": ["tabs", "activeTab", "storage"]
 }
