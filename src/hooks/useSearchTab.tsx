@@ -13,9 +13,12 @@ export const useSearchTab = () => {
     if (!query) return tabItems;
 
     try {
-      //TODO: if input is not alphabet or number, append `\`
-      const queryRegex = new RegExp(deferredQuery, "ig");
+      const escapedQueryStr = deferredQuery.replaceAll(
+        /[.*+?^${}()|[\]\\]/g,
+        "\\$&"
+      );
 
+      const queryRegex = new RegExp(escapedQueryStr, "ig");
       const matchedResult = tabItems.filter(
         (t) => t.info.title?.search(queryRegex) !== -1
       );
@@ -29,6 +32,7 @@ export const useSearchTab = () => {
       });
       return matchedResult;
     } catch (error) {
+      console.error(error);
       return tabItems;
     }
   };
