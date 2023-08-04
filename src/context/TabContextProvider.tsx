@@ -134,8 +134,7 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
           (res) => res.status === "fulfilled"
         );
 
-        if (!isFullfilled)
-          throw new Error("Fail to open clicked tab. Please open a new one.");
+        if (!isFullfilled) return;
       } catch (error) {
         console.error(error);
       }

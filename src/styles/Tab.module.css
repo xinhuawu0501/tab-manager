@@ -38,6 +38,7 @@
 
 .tab-item.close {
   color: var(--color-light);
+  cursor: not-allowed;
 }
 
 .tab-item:hover {
