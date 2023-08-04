@@ -2,6 +2,7 @@ import {
   BookmarkedIcon,
   CloseIcon,
   DragIcon,
+  OpenLinkIcon,
   UnBookmarkedIcon,
 } from "./icons/TabIcons";
 import classes from "../styles/Tab.module.css";
@@ -23,10 +24,11 @@ export const ListItem = ({
   handleDragStart?: DragEventHandler["handleDragStart"];
   handleDrop?: DragEventHandler["handleDrop"];
 }) => {
-  const { title, url, favIconUrl, windowId } = item.info;
-  const { handleOpenNewTab } = useContext(TabCtx);
+  const { title, url, favIconUrl, windowId, id } = item.info;
+  const { ALL } = useContext(TabCtx);
 
   const isDraggable = category == "ALL";
+  const tabIsClosed = ALL.find((t) => t.info.id === id) == null;
 
   const renderHighlightedTitle = () => {
     const { searchedIndexes } = item;
@@ -61,7 +63,7 @@ export const ListItem = ({
   return (
     <li
       id={String(windowId)}
-      className={classes["tab-item"]}
+      className={`${classes["tab-item"]} ${tabIsClosed && classes["close"]}`}
       draggable={isDraggable}
       onDragStart={(e) => {
         if (!isDraggable) return;
@@ -84,19 +86,38 @@ export const ListItem = ({
         className={classes["title"]}
         onClick={() => {
           //@ts-expect-error
-          item.handleNavigateTo(url).catch(() => handleOpenNewTab(url));
+          item.handleNavigateTo(url);
         }}
       >
         {renderHighlightedTitle()}
       </div>
 
-      {category === "ALL" && (
-        <button onClick={() => item.handleClose()}>
+      {!tabIsClosed && (
+        <button
+          className={classes["icon-container"]}
+          onClick={() => item.handleClose()}
+        >
           <CloseIcon />
         </button>
       )}
 
-      <button onClick={() => item.handleToggleBookmark()}>
+      {tabIsClosed ? (
+        <a
+          className={classes["icon-container"]}
+          href={url}
+          target="_blank"
+          rel="noopenner noreferrer"
+        >
+          <OpenLinkIcon />
+        </a>
+      ) : (
+        <></>
+      )}
+
+      <button
+        className={classes["icon-container"]}
+        onClick={() => item.handleToggleBookmark()}
+      >
         {item.isBookmarked ? <BookmarkedIcon /> : <UnBookmarkedIcon />}
       </button>
     </li>

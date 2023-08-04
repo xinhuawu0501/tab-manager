@@ -53,5 +53,4 @@ export type TabContext = {
   BOOKMARKED: ITabItem[];
   window?: chrome.windows.Window;
   handleMoveTab: Function;
-  handleOpenNewTab: Function;
 };

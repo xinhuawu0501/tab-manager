@@ -27,12 +27,17 @@
 
 .tab-item {
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-between;
+  align-items: center;
   border-radius: var(--border-ra);
   padding: 3px 5px;
   width: 21rem;
   cursor: pointer;
   background-color: var(--bg);
+}
+
+.tab-item.close {
+  color: var(--color-light);
 }
 
 .tab-item:hover {
@@ -65,13 +70,24 @@
 .tab-item button {
   background: none;
   border: none;
-  height: 1rem;
-  width: 1rem;
+  padding: 0;
+}
+
+.tab-item .icon-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 20px;
 }
 
 .tab-item svg {
   fill: var(--color);
   cursor: pointer;
+}
+
+.tab-item a {
+  display: block;
 }
 
 .tab-item .empty-img {

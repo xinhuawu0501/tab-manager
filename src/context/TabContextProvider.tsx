@@ -22,7 +22,6 @@ export const TabCtx = createContext<TabContext>({
   BOOKMARKED: [],
   window: undefined,
   handleMoveTab: () => {},
-  handleOpenNewTab: () => {},
 });
 
 const initialState: TabListState = {
@@ -139,7 +138,6 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
           throw new Error("Fail to open clicked tab. Please open a new one.");
       } catch (error) {
         console.error(error);
-        throw new Error();
       }
     }
 
@@ -197,19 +195,6 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
     }
   };
 
-  const handleOpenNewTab = async (url: string) => {
-    try {
-      await chrome.tabs.create({
-        active: true,
-        url: url,
-        openerTabId: window?.tabs?.[0].id ?? ALL[0].info.id,
-        windowId: window?.id ?? ALL[0].info.windowId,
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   const handleMoveTab = async (
     moveProperties: MoveProperties,
     tabId: number
@@ -233,7 +218,6 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
   const contextValue = {
     ...state,
     window: window,
-    handleOpenNewTab: handleOpenNewTab,
     handleMoveTab: handleMoveTab,
   };
 
