@@ -10,46 +10,15 @@ import { Catogories, ITabItem } from "../lib/type/Tab";
 import { DragEventHandler } from "../hooks/useDragDrop";
 import { useContext } from "react";
 import { TabCtx } from "../context/TabContextProvider";
+import { renderHighlightedTitle } from "../lib/util/HighlighedTitle";
 
 interface TabItemProps {
   item: ITabItem;
-  category?: Catogories;
   query: string;
+  category?: Catogories;
   handleDragStart?: DragEventHandler["handleDragStart"];
   handleDrop?: DragEventHandler["handleDrop"];
 }
-
-const renderHighlightedTitle = (item: ITabItem, query: string) => {
-  const { searchedIndexes, info } = item;
-  const { title } = info;
-
-  const queryLength = query.length;
-  if (!searchedIndexes || searchedIndexes.length == 0 || queryLength === 0)
-    return title;
-
-  //split title string into chunks
-  const subStrs = [];
-  let p1 = 0;
-  for (let i = 0; i < searchedIndexes.length; i++) {
-    subStrs.push(title?.slice(p1, searchedIndexes[i]));
-
-    const highLightedStr = title?.slice(
-      searchedIndexes[i],
-      searchedIndexes[i] + queryLength
-    );
-
-    subStrs.push(highLightedStr);
-    p1 = searchedIndexes[i] + queryLength;
-    if (i == searchedIndexes.length - 1) subStrs.push(title?.slice(p1));
-  }
-  return (
-    <div>
-      {subStrs.map((str, i) =>
-        i % 2 == 0 ? <span key={i}>{str}</span> : <mark key={i}>{str}</mark>
-      )}
-    </div>
-  );
-};
 
 const BookmarkedTab = ({ item, query }: TabItemProps) => {
   const { title, url, favIconUrl, windowId, id } = item.info;

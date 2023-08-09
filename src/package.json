@@ -32,6 +32,7 @@
         "pages/**",
         "public/**",
         "hooks/**",
+        "lib/**",
         "context/**",
         "components/**",
         "next.config.js",
