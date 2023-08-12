@@ -1,29 +1,29 @@
-import { useContext } from "react";
+import React, { useContext } from "react";
 import { ITabItem } from "../lib/type/Tab";
 import { TabCtx } from "../context/TabContextProvider";
 
 export type DragEventHandler = {
-  //@ts-ignore
-  handleDragStart: (e: DragEvent<HTMLLIElement>, item: ITabItem) => void;
-  //@ts-ignore
-  handleDrop: (e: DragEvent<HTMLLIElement>) => void;
+  handleDragStart: (e: React.DragEvent<HTMLLIElement>, item: ITabItem) => void;
+  handleDrop: (e: React.DragEvent<HTMLLIElement>) => void;
 };
 
-//@ts-ignore
 export const useDragDrop = () => {
-  const { handleMoveTab } = useContext(TabCtx);
-  //@ts-ignore
-  const handleDragStart = (e: DragEvent<HTMLLIElement>, item: ITabItem) => {
+  const { handleMoveTab, ALL } = useContext(TabCtx);
+
+  const handleDragStart = (
+    e: React.DragEvent<HTMLLIElement>,
+    item: ITabItem
+  ) => {
     const transferredData = JSON.stringify(item);
     if (!transferredData) return;
-    e.dataTransfer?.setData("text/plain", transferredData);
+    e.dataTransfer.dropEffect = "move";
+    e.dataTransfer.setData("text/plain", transferredData);
   };
 
-  //@ts-ignore
-  const handleDrop = async (e: DragEvent<HTMLLIElement>) => {
+  const handleDrop = async (e: React.DragEvent<HTMLLIElement>) => {
     const data = e.dataTransfer.getData("text/plain");
     const parsedData: ITabItem = JSON.parse(data);
-    const { windowId, id, index } = parsedData.info;
+    const { windowId, id } = parsedData.info;
     const droppedZoneWindowId = e.currentTarget.id;
 
     if (windowId !== Number(droppedZoneWindowId) && id) {
@@ -31,7 +31,7 @@ export const useDragDrop = () => {
     }
   };
 
-  const handleDragOver = (e: DragEvent) => {
+  const handleDragOver = (e: React.DragEvent<HTMLLIElement>) => {
     e.preventDefault();
   };
 
