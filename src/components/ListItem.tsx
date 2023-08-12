@@ -10,7 +10,7 @@ import { Catogories, ITabItem } from "../lib/type/Tab";
 import { DragEventHandler } from "../hooks/useDragDrop";
 import { useContext } from "react";
 import { TabCtx } from "../context/TabContextProvider";
-import { renderHighlightedTitle } from "../lib/util/HighlighedTitle";
+import { renderHighlightedTitle } from "../lib/util/renderHighlighedTitle";
 
 interface TabItemProps {
   item: ITabItem;
