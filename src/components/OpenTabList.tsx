@@ -7,6 +7,7 @@ import { SearchCtx } from "../context/SearchContextProvider";
 import {
   DragDropContext,
   Draggable,
+  DropResult,
   Droppable,
   resetServerContext,
 } from "react-beautiful-dnd";
@@ -49,15 +50,17 @@ export const OpenTabList = () => {
     resetServerContext();
   }, []);
 
+  const handleDragEnd = (result: DropResult) => {};
+
   return (
     <div id="all-tabs">
       <label>{`ALL (${searchedAllTabs.length})`}</label>
-      <DragDropContext onDragEnd={() => {}}>
+      <DragDropContext onDragEnd={handleDragEnd}>
         {allTabArrSortedByWindow.map(([windowId, tabs]) => {
           return (
             <Droppable droppableId={windowId} key={windowId}>
               {(provided) => {
-                const { droppableProps, innerRef } = provided;
+                const { droppableProps, innerRef, placeholder } = provided;
                 return (
                   <ul
                     className={classes["tab-group"]}
@@ -66,7 +69,11 @@ export const OpenTabList = () => {
                     ref={innerRef}
                   >
                     {tabs.map((t, i) => (
-                      <Draggable draggableId={t.info.id! + ""} index={i}>
+                      <Draggable
+                        draggableId={t.info.id! + ""}
+                        index={i}
+                        key={i}
+                      >
                         {(provided) => {
                           const { dragHandleProps, draggableProps } = provided;
                           return (
@@ -82,6 +89,7 @@ export const OpenTabList = () => {
                         }}
                       </Draggable>
                     ))}
+                    {placeholder}
                   </ul>
                 );
               }}

@@ -1,7 +1,6 @@
 import {
   BookmarkedIcon,
   CloseIcon,
-  DragIcon,
   OpenLinkIcon,
   UnBookmarkedIcon,
 } from "./icons/TabIcons";
@@ -11,6 +10,7 @@ import { DragEventHandler } from "../hooks/useDragDrop";
 import { useContext } from "react";
 import { TabCtx } from "../context/TabContextProvider";
 import { renderHighlightedTitle } from "../lib/util/renderHighlighedTitle";
+import { OpenTabItem } from "./OpenTabItem";
 
 interface TabItemProps {
   item: ITabItem;
@@ -74,69 +74,9 @@ const BookmarkedTab = ({ item, query }: TabItemProps) => {
   );
 };
 
-const Tab = ({ item, query, handleDragStart, handleDrop }: TabItemProps) => {
-  const { title, url, favIconUrl, windowId } = item.info;
-
-  return (
-    <li
-      id={String(windowId)}
-      className={`${classes["tab-item"]}`}
-      draggable={true}
-      onDragStart={(e) => {
-        handleDragStart!(e, item);
-      }}
-      onDragOver={(e) => e.preventDefault()}
-      onDrop={(e) => {
-        handleDrop!(e);
-      }}
-    >
-      <DragIcon />
-      {favIconUrl ? (
-        <img src={favIconUrl} alt={`${title}_img`} />
-      ) : (
-        <div className={classes["empty-img"]} />
-      )}
-
-      <div
-        className={classes["title"]}
-        onClick={() => {
-          item.handleNavigateTo(url!);
-        }}
-      >
-        {renderHighlightedTitle(item, query)}
-      </div>
-
-      <button
-        className={classes["icon-container"]}
-        onClick={() => item.handleClose()}
-      >
-        <CloseIcon />
-      </button>
-
-      <button
-        className={classes["icon-container"]}
-        onClick={() => item.handleToggleBookmark()}
-      >
-        {item.isBookmarked ? <BookmarkedIcon /> : <UnBookmarkedIcon />}
-      </button>
-    </li>
-  );
-};
-
-export const ListItem = ({
-  item,
-  category,
-  query,
-  handleDragStart,
-  handleDrop,
-}: TabItemProps) => {
+export const ListItem = ({ item, category, query }: TabItemProps) => {
   return category === "ALL" ? (
-    <Tab
-      item={item}
-      query={query}
-      handleDragStart={handleDragStart}
-      handleDrop={handleDrop}
-    />
+    <OpenTabItem item={item} />
   ) : (
     <BookmarkedTab item={item} query={query} />
   );
