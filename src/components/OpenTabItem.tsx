@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { LegacyRef, forwardRef, useContext } from "react";
 import { ITabItem } from "../lib/type/Tab";
 import { renderHighlightedTitle } from "../lib/util/renderHighlighedTitle";
 import classes from "../styles/Tab.module.css";
@@ -10,12 +10,18 @@ import {
 } from "./icons/TabIcons";
 import { SearchCtx } from "../context/SearchContextProvider";
 
-export const OpenTabItem = ({ item }: { item: ITabItem }) => {
+const OpenTab = (props: any, ref: LegacyRef<HTMLLIElement>) => {
+  const { item } = props;
   const { title, url, favIconUrl, windowId } = item.info;
   const { query } = useContext(SearchCtx);
 
   return (
-    <li id={String(windowId)} className={`${classes["tab-item"]}`}>
+    <li
+      {...props}
+      id={String(windowId)}
+      className={`${classes["tab-item"]}`}
+      ref={ref}
+    >
       <DragIcon />
       {favIconUrl ? (
         <img src={favIconUrl} alt={`${title}_img`} />
@@ -48,3 +54,5 @@ export const OpenTabItem = ({ item }: { item: ITabItem }) => {
     </li>
   );
 };
+
+export const OpenTabItem = forwardRef(OpenTab);

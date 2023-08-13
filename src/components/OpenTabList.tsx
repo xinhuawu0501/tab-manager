@@ -11,6 +11,7 @@ import {
   Droppable,
   resetServerContext,
 } from "react-beautiful-dnd";
+import { OpenTabItem } from "./OpenTabItem";
 
 const handleGroupTabsByWindow = (tabs: ITabItem[]) => {
   const groups: { [id: number]: ITabItem[] } = {};
@@ -75,15 +76,15 @@ export const OpenTabList = () => {
                         key={i}
                       >
                         {(provided) => {
-                          const { dragHandleProps, draggableProps } = provided;
+                          const { dragHandleProps, draggableProps, innerRef } =
+                            provided;
                           return (
-                            <ListItem
+                            <OpenTabItem
                               {...dragHandleProps}
                               {...draggableProps}
                               key={t.info.id}
                               item={t}
-                              category="ALL"
-                              query={query}
+                              ref={innerRef}
                             />
                           );
                         }}
