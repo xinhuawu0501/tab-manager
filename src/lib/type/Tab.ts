@@ -40,6 +40,7 @@ export enum ActionType {
   TOGGLE_BOOKMARK = "TOGGLE_BOOKMARK",
   UPDATE = "UPDATE",
   SET_WINDOW = "SET_WINDOW",
+  CHANGE_POSITION = "CHANGE_POSITION",
 }
 
 export type Action = {
@@ -52,5 +53,5 @@ export type TabContext = {
   ALL: ITabItem[];
   BOOKMARKED: ITabItem[];
   window?: chrome.windows.Window;
-  handleMoveTab: Function;
+  handleMoveTab: (moveProperties: MoveProperties, tabId: number) => void;
 };

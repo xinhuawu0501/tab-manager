@@ -1,8 +1,7 @@
 import { useContext, useEffect, useMemo } from "react";
 import { TabCtx } from "../context/TabContextProvider";
-import { ITabItem } from "../lib/type/Tab";
+import { ITabItem, MoveProperties } from "../lib/type/Tab";
 import classes from "../styles/Tab.module.css";
-import { ListItem } from "./ListItem";
 import { SearchCtx } from "../context/SearchContextProvider";
 import {
   DragDropContext,
@@ -26,13 +25,17 @@ const handleGroupTabsByWindow = (tabs: ITabItem[]) => {
 };
 
 export const OpenTabList = () => {
-  const { ALL, window } = useContext(TabCtx);
+  const { ALL, window, handleMoveTab } = useContext(TabCtx);
   const { data, query } = useContext(SearchCtx);
   const { searchedAllTabs } = data;
 
+  const tabsGroupByWindow = useMemo(
+    () => handleGroupTabsByWindow(searchedAllTabs),
+    [searchedAllTabs]
+  );
+
   const allTabArrSortedByWindow = useMemo(() => {
-    const groupedByWindow = handleGroupTabsByWindow(searchedAllTabs);
-    const arr = Object.entries(groupedByWindow);
+    const arr = Object.entries(tabsGroupByWindow);
 
     if (!window || !window.id) return arr;
     const indexOfCurrentWindowGroup = arr.findIndex(
@@ -45,13 +48,27 @@ export const OpenTabList = () => {
     arr[indexOfCurrentWindowGroup] = temp;
 
     return arr;
-  }, [ALL, searchedAllTabs, window]);
+  }, [tabsGroupByWindow, window]);
 
   useEffect(() => {
     resetServerContext();
   }, []);
 
-  const handleDragEnd = (result: DropResult) => {};
+  const handleDragEnd = (result: DropResult) => {
+    const { source, destination } = result;
+    if (!destination) return;
+    const windowIsChange = source.droppableId !== destination.droppableId;
+    const indexIsChange = source.index !== destination.index;
+    if (!windowIsChange && !indexIsChange) return;
+
+    const moveProperties: MoveProperties = { index: destination.index };
+    if (windowIsChange)
+      moveProperties.windowId = Number(destination.droppableId);
+
+    const draggingTab = tabsGroupByWindow[+source.droppableId].at(source.index);
+    if (!draggingTab?.info.id) return;
+    handleMoveTab(moveProperties, draggingTab?.info.id);
+  };
 
   return (
     <div id="all-tabs">
