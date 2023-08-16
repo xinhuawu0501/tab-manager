@@ -40,13 +40,13 @@ export enum ActionType {
   TOGGLE_BOOKMARK = "TOGGLE_BOOKMARK",
   UPDATE = "UPDATE",
   SET_WINDOW = "SET_WINDOW",
-  CHANGE_POSITION = "CHANGE_POSITION",
 }
 
 export type Action = {
   type: ActionType;
   payload?: ITabItem;
   initState?: Partial<TabListState & CurrentWindow>;
+  moveProperties?: MoveProperties & Pick<Tab, "id">;
 };
 
 export type TabContext = {

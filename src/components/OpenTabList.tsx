@@ -20,6 +20,7 @@ const handleGroupTabsByWindow = (tabs: ITabItem[]) => {
     groups[windowId] ||= [];
     groups[windowId].push(tab);
   }
+  console.log(groups);
 
   return groups;
 };

@@ -31,7 +31,7 @@ const initialState: TabListState = {
 };
 
 const reducer = (state: TabListState, action: Action): TabListState => {
-  const { payload, initState } = action;
+  const { payload, initState, moveProperties } = action;
 
   switch (action.type) {
     case ActionType.INIT: {
@@ -81,15 +81,21 @@ const reducer = (state: TabListState, action: Action): TabListState => {
     }
 
     case ActionType.UPDATE: {
-      if (!payload) return state;
+      if (!moveProperties) return state;
       const { ALL } = state;
-      const { id } = payload?.info;
+      const { windowId, index, id } = moveProperties;
 
-      const index = ALL.findIndex((t) => t.info.id === id);
+      const originalPosition = ALL.findIndex((t) => t.info.id === id);
+      const moveTargetItem = ALL[originalPosition];
+      if (windowId) moveTargetItem.info.windowId = windowId;
+
+      const newState = [...ALL];
+      newState.splice(originalPosition, 1);
+      newState.splice(index, 0, moveTargetItem);
 
       return {
         ...state,
-        ALL: [...ALL.slice(0, index), payload, ...ALL.slice(index + 1)],
+        ALL: newState,
       };
     }
 
@@ -202,12 +208,9 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
       const tab = await chrome.tabs.move(tabId, moveProperties);
       if (!tab) throw new Error("Fail to move tab");
 
-      const index = ALL.findIndex((t) => t.info.id == tabId);
-      ALL[index].info.windowId = tab.windowId;
-
       dispatch({
         type: ActionType.UPDATE,
-        payload: ALL[index],
+        moveProperties: { ...moveProperties, id: tabId },
       });
     } catch (error) {
       console.error(error);
