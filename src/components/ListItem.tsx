@@ -6,7 +6,7 @@ import {
 } from "./icons/TabIcons";
 import classes from "../styles/Tab.module.css";
 import { Catogories, ITabItem } from "../lib/type/Tab";
-import { DragEventHandler } from "../hooks/useDragDrop";
+// import { DragEventHandler } from "../hooks/useDragDrop";
 import { useContext } from "react";
 import { TabCtx } from "../context/TabContextProvider";
 import { renderHighlightedTitle } from "../lib/util/renderHighlighedTitle";
@@ -16,8 +16,8 @@ interface TabItemProps {
   item: ITabItem;
   query: string;
   category?: Catogories;
-  handleDragStart?: DragEventHandler["handleDragStart"];
-  handleDrop?: DragEventHandler["handleDrop"];
+  // handleDragStart?: DragEventHandler["handleDragStart"];
+  // handleDrop?: DragEventHandler["handleDrop"];
 }
 
 const BookmarkedTab = ({ item, query }: TabItemProps) => {

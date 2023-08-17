@@ -1,6 +1,6 @@
 import { useContext, useEffect, useMemo } from "react";
 import { TabCtx } from "../context/TabContextProvider";
-import { ITabItem, MoveProperties } from "../lib/type/Tab";
+import { DragData, ITabItem, MoveProperties } from "../lib/type/Tab";
 import classes from "../styles/Tab.module.css";
 import { SearchCtx } from "../context/SearchContextProvider";
 import {
@@ -20,14 +20,13 @@ const handleGroupTabsByWindow = (tabs: ITabItem[]) => {
     groups[windowId] ||= [];
     groups[windowId].push(tab);
   }
-  console.log(groups);
 
   return groups;
 };
 
 export const OpenTabList = () => {
-  const { ALL, window, handleMoveTab } = useContext(TabCtx);
-  const { data, query } = useContext(SearchCtx);
+  const { window, handleMoveTab, ALL } = useContext(TabCtx);
+  const { data } = useContext(SearchCtx);
   const { searchedAllTabs } = data;
 
   const tabsGroupByWindow = useMemo(
@@ -62,13 +61,26 @@ export const OpenTabList = () => {
     const indexIsChange = source.index !== destination.index;
     if (!windowIsChange && !indexIsChange) return;
 
-    const moveProperties: MoveProperties = { index: destination.index };
-    if (windowIsChange)
-      moveProperties.windowId = Number(destination.droppableId);
-
     const draggingTab = tabsGroupByWindow[+source.droppableId].at(source.index);
     if (!draggingTab?.info.id) return;
-    handleMoveTab(moveProperties, draggingTab?.info.id);
+
+    //find the nearby tab
+    //default: find the previous tab
+    const tabAtDestination = tabsGroupByWindow[+source.droppableId].at(
+      destination.index
+    );
+    console.log("tab at des", tabAtDestination);
+
+    const dragData: DragData = {
+      source: ALL.findIndex((t) => t.info.id === draggingTab.info.id),
+      destination: ALL.findIndex(
+        (t) => t.info.id === tabAtDestination?.info.id
+      ),
+      indexInGroup: destination.index,
+    };
+
+    if (windowIsChange) dragData.windowId = Number(destination.droppableId);
+    draggingTab.handleMoveTab(dragData);
   };
 
   return (

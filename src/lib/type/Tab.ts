@@ -1,3 +1,5 @@
+import { DraggableLocation } from "react-beautiful-dnd";
+
 export enum STORAGE_KEY {
   BOOKMARKED = "BOOKMARKED",
 }
@@ -23,6 +25,7 @@ export interface ITabItem {
   handleNavigateTo: (url: string) => void;
   handleClose: () => void;
   handleToggleBookmark: () => void;
+  handleMoveTab: (data: DragData) => void;
 }
 
 export type Catogories = "ALL" | "BOOKMARKED";
@@ -42,16 +45,24 @@ export enum ActionType {
   SET_WINDOW = "SET_WINDOW",
 }
 
+export interface DragData {
+  source: number;
+  destination: number;
+  windowId?: number;
+  tabId?: number;
+  indexInGroup: number;
+}
+
 export type Action = {
   type: ActionType;
   payload?: ITabItem;
   initState?: Partial<TabListState & CurrentWindow>;
-  moveProperties?: MoveProperties & Pick<Tab, "id">;
+  dragData?: DragData;
 };
 
 export type TabContext = {
   ALL: ITabItem[];
   BOOKMARKED: ITabItem[];
   window?: chrome.windows.Window;
-  handleMoveTab: (moveProperties: MoveProperties, tabId: number) => void;
+  handleMoveTab: (moveProperties: DragData) => void;
 };
