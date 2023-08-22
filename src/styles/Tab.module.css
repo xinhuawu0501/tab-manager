@@ -68,6 +68,14 @@
   overflow: hidden;
 }
 
+.adornment {
+  display: flex;
+}
+
+.adornment > * {
+  margin: 5px;
+}
+
 .tab-item button {
   background: none;
   border: none;

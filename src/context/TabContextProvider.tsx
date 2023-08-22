@@ -9,6 +9,7 @@ import {
 import {
   Action,
   ActionType,
+  DragData,
   ITabItem,
   MoveProperties,
   STORAGE_KEY,
@@ -31,7 +32,7 @@ const initialState: TabListState = {
 };
 
 const reducer = (state: TabListState, action: Action): TabListState => {
-  const { payload, initState } = action;
+  const { payload, initState, dragData } = action;
 
   switch (action.type) {
     case ActionType.INIT: {
@@ -81,15 +82,21 @@ const reducer = (state: TabListState, action: Action): TabListState => {
     }
 
     case ActionType.UPDATE: {
-      if (!payload) return state;
+      if (!dragData) return state;
       const { ALL } = state;
-      const { id } = payload?.info;
+      const { windowId, source, destination, tabId } = dragData;
 
-      const index = ALL.findIndex((t) => t.info.id === id);
+      const moveTargetItem = ALL[source];
+      if (windowId) moveTargetItem.info.windowId = windowId;
+
+      const newState = [...ALL];
+
+      newState.splice(source, 1);
+      newState.splice(destination, 0, moveTargetItem);
 
       return {
         ...state,
-        ALL: [...ALL.slice(0, index), payload, ...ALL.slice(index + 1)],
+        ALL: newState,
       };
     }
 
@@ -153,6 +160,27 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
       this.isBookmarked = !this.isBookmarked;
       dispatch({ type: ActionType.TOGGLE_BOOKMARK, payload: this });
     }
+
+    async handleMoveTab(data: DragData) {
+      try {
+        const { id } = this.info;
+        if (!id) return;
+        const { windowId, indexInGroup } = data;
+        const moveProperties: MoveProperties = {
+          index: indexInGroup,
+        };
+        if (windowId) moveProperties.windowId = windowId;
+        const tab = await chrome.tabs.move(id, moveProperties);
+        if (!tab) throw new Error("Fail to move tab");
+
+        dispatch({
+          type: ActionType.UPDATE,
+          dragData: { ...data, tabId: id },
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    }
   }
 
   const getAllTabs = async (data?: ITabItem[]) => {
@@ -194,24 +222,22 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
     }
   };
 
-  const handleMoveTab = async (
-    moveProperties: MoveProperties,
-    tabId: number
-  ) => {
-    try {
-      const tab = await chrome.tabs.move(tabId, moveProperties);
-      if (!tab) throw new Error("Fail to move tab");
-
-      const index = ALL.findIndex((t) => t.info.id == tabId);
-      ALL[index].info.windowId = tab.windowId;
-
-      dispatch({
-        type: ActionType.UPDATE,
-        payload: ALL[index],
-      });
-    } catch (error) {
-      console.error(error);
-    }
+  const handleMoveTab = async (data: DragData) => {
+    // try {
+    //   const { tabId, destination, windowId } = data;
+    //   const moveProperties: MoveProperties = {
+    //     index: destination,
+    //   };
+    //   if (windowId) moveProperties.windowId = windowId;
+    //   const tab = await chrome.tabs.move(tabId, moveProperties);
+    //   if (!tab) throw new Error("Fail to move tab");
+    //   dispatch({
+    //     type: ActionType.UPDATE,
+    //     dragData: data,
+    //   });
+    // } catch (error) {
+    //   console.error(error);
+    // }
   };
 
   const contextValue = {
