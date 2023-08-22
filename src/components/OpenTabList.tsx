@@ -64,12 +64,9 @@ export const OpenTabList = () => {
     const draggingTab = tabsGroupByWindow[+source.droppableId].at(source.index);
     if (!draggingTab?.info.id) return;
 
-    //find the nearby tab
-    //default: find the previous tab
     const tabAtDestination = tabsGroupByWindow[+source.droppableId].at(
       destination.index
     );
-    console.log("tab at des", tabAtDestination);
 
     const dragData: DragData = {
       source: ALL.findIndex((t) => t.info.id === draggingTab.info.id),
