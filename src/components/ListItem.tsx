@@ -4,14 +4,13 @@ import { OpenTabItem } from "./OpenTabItem";
 
 export interface TabItemProps {
   item: ITabItem;
-  query: string;
   category?: Catogories;
 }
 
-export const ListItem = ({ item, category, query }: TabItemProps) => {
+export const ListItem = ({ item, category }: TabItemProps) => {
   return category === "ALL" ? (
     <OpenTabItem item={item} />
   ) : (
-    <BookmarkedTabItem item={item} query={query} />
+    <BookmarkedTabItem item={item} />
   );
 };

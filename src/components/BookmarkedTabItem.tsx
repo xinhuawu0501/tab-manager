@@ -8,11 +8,13 @@ import classes from "../styles/Tab.module.css";
 import { useContext } from "react";
 import { TabCtx } from "../context/TabContextProvider";
 import { renderHighlightedTitle } from "../lib/util/renderHighlighedTitle";
-import { TabItemProps } from "./ListItem";
+import { SearchCtx } from "../context/SearchContextProvider";
+import { ITabItem } from "../lib/type/Tab";
 
-export const BookmarkedTabItem = ({ item, query }: TabItemProps) => {
+export const BookmarkedTabItem = ({ item }: { item: ITabItem }) => {
   const { title, url, favIconUrl, windowId, id } = item.info;
   const { ALL } = useContext(TabCtx);
+  const { query } = useContext(SearchCtx);
 
   const tabIsClosed = ALL.find((t) => t.info.id === id) == null;
 

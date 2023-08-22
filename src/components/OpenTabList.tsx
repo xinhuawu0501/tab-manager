@@ -25,7 +25,7 @@ const handleGroupTabsByWindow = (tabs: ITabItem[]) => {
 };
 
 export const OpenTabList = () => {
-  const { window, handleMoveTab, ALL } = useContext(TabCtx);
+  const { window, ALL } = useContext(TabCtx);
   const { data } = useContext(SearchCtx);
   const { searchedAllTabs } = data;
 

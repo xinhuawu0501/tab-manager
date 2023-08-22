@@ -1,5 +1,4 @@
 import { LegacyRef, forwardRef, useContext } from "react";
-import { ITabItem } from "../lib/type/Tab";
 import { renderHighlightedTitle } from "../lib/util/renderHighlighedTitle";
 import classes from "../styles/Tab.module.css";
 import {
@@ -9,8 +8,9 @@ import {
   UnBookmarkedIcon,
 } from "./icons/TabIcons";
 import { SearchCtx } from "../context/SearchContextProvider";
+import { ITabItem } from "../lib/type/Tab";
 
-const OpenTab = (props: any, ref: LegacyRef<HTMLLIElement>) => {
+const OpenTab = (props: { item: ITabItem }, ref: LegacyRef<HTMLLIElement>) => {
   const { item } = props;
   const { title, url, favIconUrl, windowId } = item.info;
   const { query } = useContext(SearchCtx);
