@@ -38,19 +38,21 @@ const OpenTab = (props: { item: ITabItem }, ref: LegacyRef<HTMLLIElement>) => {
         {renderHighlightedTitle(item, query)}
       </div>
 
-      <button
-        className={classes["icon-container"]}
-        onClick={() => item.handleClose()}
-      >
-        <CloseIcon />
-      </button>
+      <div className={classes["adornment"]}>
+        <button
+          className={classes["icon-container"]}
+          onClick={() => item.handleClose()}
+        >
+          <CloseIcon />
+        </button>
 
-      <button
-        className={classes["icon-container"]}
-        onClick={() => item.handleToggleBookmark()}
-      >
-        {item.isBookmarked ? <BookmarkedIcon /> : <UnBookmarkedIcon />}
-      </button>
+        <button
+          className={classes["icon-container"]}
+          onClick={() => item.handleToggleBookmark()}
+        >
+          {item.isBookmarked ? <BookmarkedIcon /> : <UnBookmarkedIcon />}
+        </button>
+      </div>
     </li>
   );
 };

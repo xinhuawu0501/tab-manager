@@ -38,30 +38,32 @@ export const BookmarkedTabItem = ({ item }: { item: ITabItem }) => {
         {renderHighlightedTitle(item, query)}
       </div>
 
-      {tabIsClosed ? (
-        <a
-          className={classes["icon-container"]}
-          href={url}
-          target="_blank"
-          rel="noopenner noreferrer"
-        >
-          <OpenLinkIcon />
-        </a>
-      ) : (
+      <div className={classes["adornment"]}>
+        {tabIsClosed ? (
+          <a
+            className={classes["icon-container"]}
+            href={url}
+            target="_blank"
+            rel="noopenner noreferrer"
+          >
+            <OpenLinkIcon />
+          </a>
+        ) : (
+          <button
+            className={classes["icon-container"]}
+            onClick={() => item.handleClose()}
+          >
+            <CloseIcon />
+          </button>
+        )}
+
         <button
           className={classes["icon-container"]}
-          onClick={() => item.handleClose()}
+          onClick={() => item.handleToggleBookmark()}
         >
-          <CloseIcon />
+          {item.isBookmarked ? <BookmarkedIcon /> : <UnBookmarkedIcon />}
         </button>
-      )}
-
-      <button
-        className={classes["icon-container"]}
-        onClick={() => item.handleToggleBookmark()}
-      >
-        {item.isBookmarked ? <BookmarkedIcon /> : <UnBookmarkedIcon />}
-      </button>
+      </div>
     </li>
   );
 };
