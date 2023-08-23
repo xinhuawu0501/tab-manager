@@ -6,4 +6,4 @@
 
 - Lightning-Fast Search: Find what you're looking for in an instant! TabMaster's smart search feature highlights your search query across open tabs.
 
-- Intuitive Drag and Drop: Effortlessly rearrange your tabs by dragging and dropping them into different windows, customizing your browsing layout effortlessly.
+- Intuitive Drag and Drop: Effortlessly re-arrange your tabs by dragging and dropping them into different windows or position, customizing your browsing layout effortlessly.
