@@ -3,6 +3,7 @@
   flex-direction: column;
   padding: 0.5rem 0;
   list-style: none;
+  width: 23rem;
 }
 
 .tab-list > * {
