@@ -64,5 +64,4 @@ export type TabContext = {
   ALL: ITabItem[];
   BOOKMARKED: ITabItem[];
   window?: chrome.windows.Window;
-  handleMoveTab: (moveProperties: DragData) => void;
 };

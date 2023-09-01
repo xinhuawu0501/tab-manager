@@ -22,7 +22,6 @@ export const TabCtx = createContext<TabContext>({
   ALL: [],
   BOOKMARKED: [],
   window: undefined,
-  handleMoveTab: () => {},
 });
 
 const initialState: TabListState = {
@@ -222,28 +221,9 @@ export const TabContextProvider = ({ children }: PropsWithChildren) => {
     }
   };
 
-  const handleMoveTab = async (data: DragData) => {
-    // try {
-    //   const { tabId, destination, windowId } = data;
-    //   const moveProperties: MoveProperties = {
-    //     index: destination,
-    //   };
-    //   if (windowId) moveProperties.windowId = windowId;
-    //   const tab = await chrome.tabs.move(tabId, moveProperties);
-    //   if (!tab) throw new Error("Fail to move tab");
-    //   dispatch({
-    //     type: ActionType.UPDATE,
-    //     dragData: data,
-    //   });
-    // } catch (error) {
-    //   console.error(error);
-    // }
-  };
-
   const contextValue = {
     ...state,
     window: window,
-    handleMoveTab: handleMoveTab,
   };
 
   useEffect(() => {
